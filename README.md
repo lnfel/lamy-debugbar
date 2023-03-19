@@ -1,58 +1,85 @@
-# create-svelte
+<p align="center">
+    <a href="https://lnfel.github.io/lamy-debugbar/" target="_blank">
+        <img src="https://raw.githubusercontent.com/lnfel/lamy-debugbar/main/src/lib/assets/lamy-logo.png" height="100">
+    </a>
+    <h1 align="center">lamy-debugbar</h1>
+</p>
 
-Everything you need to build a Svelte library, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+<div align="center">
+  <p>
+    The missing Svelte debugbar, inspired by Laravel Debugbar.
+  </p>
+  <br/>
+  <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</div>
 
-Read more about creating a library [in the docs](https://kit.svelte.dev/docs/packaging).
+## About
 
-## Creating a project
+Lamy Debugbar is an elegant Svelte component that can replace `{JSON.stringify(data}` dumps on the client-side. Talk about a fancier way to get ~~shit~~ things done. The component is powered by [Shiki](https://shiki.matsu.io/), making sure that data being debugged can be as readable as possible, it's like reading code in your favourite text editor! Now that's what I call developer experience.
 
-If you're seeing this, you've probably already done this step. Congrats!
+For a quick showcase please visit [lamy-debugbar's github page](https://lnfel.github.io/lamy-debugbar/).
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+## Installation
 
-# create a new project in my-app
-npm create svelte@latest my-app
+```s
+npm i lamy-debugbar
 ```
 
-## Developing
+## Getting Started
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Simply import LamyDebugbar component and supply the data you wish to be displayed.
 
-```bash
-npm run dev
+**src/routes/+page.js**
+```svelte
+<script>
+    import { page } from '$app/stores'
+    import LamyDebugbar from "lamy-debugbar"
+</script>
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+<LamyDebugbar data={$page} />
 ```
 
-Everything inside `src/lib` is part of your library, everything inside `src/routes` can be used as a showcase or preview app.
+The component will then destructure the keys from the `$page` object we pass to it. And will display those key values on their own tab. The tab key will be the title for each corresponding tab. Lamy Debugbar will then have tab for error, params, route, status, url, form and data (as these are the keys immediately held by $page object).
 
-## Building
+If you already got the gist, this means we can combine multiple data that we need to be displayed by the component.
 
-To build your library:
+### Combining data to be displayed
 
-```bash
-npm run package
+Refactoring the sample code above we can combine objects and display it with Lamy Debugbar.
+
+**src/routes/+page.js**
+```svelte
+<script>
+    import { page } from '$app/stores'
+    import LamyDebugbar from "lamy-debugbar"
+
+    export let data
+    let debug = { page: $page, server: data }
+</script>
+
+<LamyDebugbar data={debug} />
 ```
 
-To create a production version of your showcase app:
+The debugbar will show tab for `page` and `server`. And since we declared `debug` using the `let` keyword, we can update the data in cases where we are fetching data remotely or async.
 
-```bash
-npm run build
+## Configuration
+
+There are three properties exposed by Lamy Debugbar, data, open and highlighter.
+
+```svelte
+<LamyDebugbar 
+    data?={any}
+    open?={false}
+    highlighter?={{
+        theme: 'material-palenight',
+        langs: ['javascript']
+    }} />
 ```
 
-You can preview the production build with `npm run preview`.
+| Prop | Type | Default value | Description |
+| :--- | :--- | :--- | --- |
+| data | any | {} | The object that will be displayed by Lamy Debugbar. |
+| open | Boolean | false | Whether to keep the debugbar expanded. |
+| highlighter | Object | `{ theme: 'material-palenight', langs: ['javascript'] }` | Shiki's [HighlighterOptions](https://github.com/shikijs/shiki#configuration-and-options) |
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
-
-## Publishing
-
-Go into the `package.json` and give your package the desired name through the `"name"` option. Also consider adding a `"license"` field and point it to a `LICENSE` file which you can create from a template (one popular option is the [MIT license](https://opensource.org/license/mit/)).
-
-To publish your library to [npm](https://www.npmjs.com):
-
-```bash
-npm publish
-```
+For a list of available themes head to Shiki's doc about [themes](https://github.com/shikijs/shiki/blob/main/docs/themes.md#all-themes).
