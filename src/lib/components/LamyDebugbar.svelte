@@ -119,17 +119,22 @@
         </div>
 
         <summary
-            class="lamy-toggle flex items-center justify-between list-none outline-none px-4"
+            class="lamy-toggle flex items-center justify-between list-none outline-none"
             style="
                 { shiki ? `background-color: ${shiki?.highlighter.getBackgroundColor(highlighter?.theme ?? 'material-palenight')};` : '' }
                 { shiki ? `color: ${shiki?.highlighter.getForegroundColor(highlighter?.theme ?? 'material-palenight')}` : '' }
             ">
-            <div class="flex items-center gap-4">
+            <!--
+                Flexbox apparently has min-width: auto; and
+                would not shrink further on small screens, setting min-width: 0; allows flexbox to shrink even further
+                https://stackoverflow.com/questions/36230944/prevent-flex-items-from-overflowing-a-container
+            -->
+            <div class="flex items-center min-w-0">
                 <div>
-                    <img src={LamyIcon} alt="Lamy Debugbar icon" width="24" class="py-2">
+                    <img src={LamyIcon} alt="Lamy Debugbar icon" width="40" height="40" class="max-h-10 object-contain py-2">
                     <span class="lamy-summary-text sr-only">Lamy Debugbar</span>
                 </div>
-                <div class="lamy-tablist flex max-w-full overflow-x-auto">
+                <div class="lamy-tablist flex overflow-x-auto">
                     {#each Object.keys(data) as key, i}
                         <button on:click={switchTab} id={key} type="button" class="lamy-tab whitespace-nowrap px-2 py-2 outline-none hover:bg-gray-600 focus:bg-gray-600"
                             style="{ i === 0 ? `color: ${shiki?.highlighter.getTheme(highlighter?.theme ?? 'material-palenight').colors["terminal.ansiBlue"]}` : '' }">
