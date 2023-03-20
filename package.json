@@ -1,6 +1,13 @@
 {
 	"name": "lamy-debugbar",
 	"version": "0.0.1",
+	"author": "Dale Ryan Aldover",
+	"license": "MIT",
+	"homepage": "https://lnfel.github.io/lamy-debugbar/",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/lnfel/lamy-debugbar.git"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run package",
@@ -54,5 +61,11 @@
 		"@twind/preset-tailwind": "^1.1.4",
 		"@twind/with-sveltekit": "^1.1.3",
 		"shiki-es": "^0.2.0"
-	}
+	},
+	"keywords": [
+		"svelte",
+		"debugbar",
+		"development",
+		"debugging"
+	]
 }
