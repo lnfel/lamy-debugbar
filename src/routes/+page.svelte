@@ -1,6 +1,7 @@
 <script>
     import { page } from '$app/stores'
     import { afterUpdate, onMount } from 'svelte'
+    // import LamyDebugbar from "lamy-debugbar/components/LamyDebugbar.svelte"
     import LamyDebugbar from "$lib/components/LamyDebugbar.svelte"
     import Code from "$lib/components/Code.svelte"
     import Link from "$lib/components/Link.svelte"
