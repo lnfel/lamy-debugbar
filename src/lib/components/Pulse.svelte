@@ -1,4 +1,8 @@
-<svg class="text-rose-500 dark:text-sky-500" width="45" height="45" viewBox="0 0 45 45" xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
+<script>
+    let classes = $$props.class ?? "text-rose-500 dark:text-sky-500"
+</script>
+
+<svg class={classes} width="45" height="45" viewBox="0 0 45 45" xmlns="http://www.w3.org/2000/svg" stroke="currentColor">
     <g fill="none" fill-rule="evenodd" transform="translate(1 1)" stroke-width="2">
         <circle cx="22" cy="22" r="6" stroke-opacity="0">
             <animate attributeName="r"
@@ -39,3 +43,14 @@
         </circle>
     </g>
 </svg>
+
+<style>
+    .text-rose-500 {
+        color: rgb(244 63 94);
+    }
+    @media (prefers-color-scheme: dark) {
+        .dark\:text-sky-500 {
+            color: rgb(14 165 233);
+        }
+    }
+</style>
