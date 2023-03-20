@@ -1,5 +1,5 @@
 {
-	"name": "lamy-debugbar",
+	"name": "@lamy/svelte-debugbar",
 	"version": "0.0.1",
 	"author": "Dale Ryan Aldover",
 	"license": "MIT",
