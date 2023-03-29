@@ -11,8 +11,8 @@
 /**
  * 5. Do the thing, import out component and reexport the thing
  */
-import LamyDebugbar from "./components/LamyDebugbar.svelte"
-export default LamyDebugbar
+// import LamyDebugbar from "./components/LamyDebugbar.svelte"
+// export default LamyDebugbar
 
 // This one also works
 // export { default as LamyDebugbar} from "./components/LamyDebugbar.svelte"
