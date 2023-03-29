@@ -33,7 +33,7 @@ Simply import LamyDebugbar component and supply the data you wish to be displaye
 ```svelte
 <script>
     import { page } from '$app/stores'
-    import LamyDebugbar from "lamy-debugbar/components/LamyDebugbar.svelte"
+    import LamyDebugbar from "lamy-debugbar/dist/components/LamyDebugbar.svelte"
 </script>
 
 <LamyDebugbar data={$page} />
@@ -51,7 +51,7 @@ Refactoring the sample code above we can combine objects and display it with Lam
 ```svelte
 <script>
     import { page } from '$app/stores'
-    import LamyDebugbar from "lamy-debugbar/components/LamyDebugbar.svelte"
+    import LamyDebugbar from "lamy-debugbar/dist/components/LamyDebugbar.svelte"
 
     export let data
     let debug = { page: $page, server: data }
