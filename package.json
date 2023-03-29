@@ -25,7 +25,6 @@
 		"deploy": "npm run build && npx gh-pages -d build -t true"
 	},
 	"exports": {
-		"./package.json": "./package.json",
 		".": {
 			"types": "./dist/index.d.ts",
 			"svelte": "./dist/index.js"
