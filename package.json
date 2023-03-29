@@ -12,7 +12,7 @@
 		"dev": "vite dev",
 		"build": "vite build && npm run package",
 		"preview": "vite preview",
-		"package": "svelte-kit sync && svelte-package && publint && npm run package:json",
+		"package": "svelte-kit sync && svelte-package && publint",
 		"package:json": "node ./scripts/package.js",
 		"package:install": "npm remove lamy-debugbar && npm i ./dist",
 		"package:css": "tailwindcss -i ./src/app.css -o ./src/main.css --content './src/lib/components/LamyDebugbar.svelte'",
