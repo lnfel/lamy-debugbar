@@ -29,7 +29,7 @@
 			"types": "./dist/index.d.ts",
 			"svelte": "./dist/index.js"
 		},
-		"./components/LamyDebugbar.svelte": {
+		"./dist/components/LamyDebugbar.svelte": {
 			"types": "./dist/components/LamyDebugbar.svelte.d.ts",
 			"svelte": "./dist/components/LamyDebugbar.svelte"
 		}
