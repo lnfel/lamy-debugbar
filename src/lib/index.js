@@ -16,3 +16,7 @@
 
 // This one also works
 export { default as LamyDebugbar} from "./components/LamyDebugbar.svelte"
+
+// Reexport Shiki
+import Shiki, { loadWASM, shikiHighlighter } from "./shiki.js"
+export { Shiki, loadWASM, shikiHighlighter }
