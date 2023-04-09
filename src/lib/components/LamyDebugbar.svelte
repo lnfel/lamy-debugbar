@@ -1,7 +1,7 @@
 <script>
     import { renderToHtml } from 'shiki-es'
 	import { onMount, afterUpdate, beforeUpdate } from 'svelte'
-    import Shiki, { shikiHighlighter } from "../shiki.js"
+    import Shiki, { shikiHighlighter } from "$lib/shiki.js"
     import LamyIcon from "$lib/assets/lamy-logo-192x192.png"
 
     export let data = {}
