@@ -15,4 +15,4 @@
 // export default LamyDebugbar
 
 // This one also works
-// export { default as LamyDebugbar} from "./components/LamyDebugbar.svelte"
+export { default as LamyDebugbar} from "./components/LamyDebugbar.svelte"
