@@ -33,7 +33,7 @@ Simply import LamyDebugbar component and supply the data you wish to be displaye
 ```svelte
 <script>
     import { page } from '$app/stores'
-    import LamyDebugbar from "lamy-debugbar/dist/components/LamyDebugbar.svelte"
+    import LamyDebugbar from "lamy-debugbar"
 </script>
 
 <LamyDebugbar data={$page} />
@@ -43,6 +43,12 @@ The component will then destructure the keys from the `$page` object we pass to 
 
 If you already got the gist, this means we can combine multiple data that we need to be displayed by the component.
 
+> Trivia: There is also a long method for importing the component. Why tho? Because we can.
+
+```js
+import LamyDebugbar from "lamy-debugbar/dist/components/LamyDebugbar.svelte"
+```
+
 ### Combining data to be displayed
 
 Refactoring the sample code above we can combine objects and display it with Lamy Debugbar.
@@ -51,7 +57,7 @@ Refactoring the sample code above we can combine objects and display it with Lam
 ```svelte
 <script>
     import { page } from '$app/stores'
-    import LamyDebugbar from "lamy-debugbar/dist/components/LamyDebugbar.svelte"
+    import LamyDebugbar from "lamy-debugbar"
 
     export let data
     let debug = { page: $page, server: data }
