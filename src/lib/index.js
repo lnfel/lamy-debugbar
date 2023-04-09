@@ -11,12 +11,13 @@
 /**
  * 5. Do the thing, import out component and reexport the thing
  */
-// import LamyDebugbar from "./components/LamyDebugbar.svelte"
-// export default LamyDebugbar
+import LamyDebugbar from "./components/LamyDebugbar.svelte"
+export default LamyDebugbar
 
 // This one also works
-export { default as LamyDebugbar} from "./components/LamyDebugbar.svelte"
+// export { default as LamyDebugbar} from "./components/LamyDebugbar.svelte"
 
-// Reexport Shiki
-import Shiki, { loadWASM, shikiHighlighter } from "./shiki.js"
-export { Shiki, loadWASM, shikiHighlighter }
+// Reexport Shiki, experimental since users really don't have need of this
+// as shiki options can be set via LamyDebugbar highlighter prop
+// import Shiki, { loadWASM, shikiHighlighter } from "./shiki.js"
+// export { Shiki, loadWASM, shikiHighlighter }
