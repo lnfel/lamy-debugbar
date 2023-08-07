@@ -3,6 +3,7 @@
     // import LamyDebugbar from 'lamy-debugbar'
     import LamyDebugbar from "$lib/components/LamyDebugbar.svelte"
     import Pulse from "$lib/components/Pulse.svelte"
+    import { base } from "$app/paths"
 
     let sampleData = {...$page}
     let promise = new Promise((resolve, reject) => {
@@ -10,11 +11,11 @@
     })
 </script>
 
-<a href="/">Home</a>
+<a href="{base}/">Home</a>
 
-<!-- <LamyDebugbar bind:data={sampleData} highlighter={{
+<LamyDebugbar bind:data={sampleData} highlighter={{
     theme: `min-dark`
-}} noIcon /> -->
+}} noIcon />
 
 <!-- {#await promise}
     <div class="fixed bottom-0 inset-x-0">
