@@ -107,7 +107,7 @@ In this section I will show how to load a custom theme named [Tokyo Night](https
 
 ```svelte
 <script>
-	import { onMount } from "svelte"
+    import { onMount } from "svelte"
     import { page } from "$app/stores"
     import LamyDebugbar from "$lib/components/LamyDebugbar.svelte"
 
