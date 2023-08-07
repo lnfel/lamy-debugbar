@@ -1,4 +1,4 @@
-import { getHighlighter } from 'shiki-es'
+import { getHighlighter, toShikiTheme, renderToHtml } from 'shiki-es'
 
 /**
  * Host the onig.wasm file, loading from CDN is slow af
@@ -14,6 +14,14 @@ export const loadWASM = async () => {
 }
 
 /**
+ * @type {import('shiki-es').HighlighterOptions}
+ */
+export const defaultHighlighterOptions = {
+    theme: 'material-palenight',
+    langs: ['javascript']
+}
+
+/**
  * Initialize Shiki highlighter
  * 
  * @param {Object} highlighterOptions getHighlighter options
@@ -21,46 +29,52 @@ export const loadWASM = async () => {
  * @returns {Promise<import('shiki-es').Highlighter>} shiki-es Highlighter
  */
 export const shikiHighlighter = async (highlighterOptions = {}) => {
-    const defaultHighlighterOptions = {
-        theme: 'material-palenight',
-        langs: ['javascript']
-    }
     highlighterOptions = Object.assign(defaultHighlighterOptions, highlighterOptions)
     return await getHighlighter(highlighterOptions)
 }
 
-/**
- * @returns {Promise<Shiki>}
- */
-export default class Shiki {
+class Shiki {
+    /** @type {import('shiki-es').Highlighter | undefined} */
+    highlighter
+
+    toShikiTheme = toShikiTheme
+    renderToHtml = renderToHtml
+
     /**
      * @constructor
-     * @param {Function} highlighter 
-     * @param {Object} highlighterOptions 
+     * @param {import('shiki-es').HighlighterOptions} highlighterOptions 
      */
-    constructor(highlighter, highlighterOptions) {
-        // /**
-        //  * @type {Promise<import('shiki-es').Highlighter>}
-        //  */
-        // this.highlighter = this.init(highlighter, highlighterOptions)
-
-        // @ts-ignore
-        return (async () => {
-            this.highlighter = await highlighter(highlighterOptions)
-
-            return this
-        })()
+    constructor(highlighterOptions = {}) {
+        this.highlighterOptions = highlighterOptions
     }
 
     /**
-     * Async function constructor
-     * 
-     * https://stackoverflow.com/a/54737471/12478479
-     * 
-     * @param {Function} highlighter 
-     * @param {Object} highlighterOptions 
+     * @param {import('shiki-es').HighlighterOptions} highlighterOptions 
+     * @returns {Promise<import('shiki-es').Highlighter>} Highlighter
      */
-    async init(highlighter, highlighterOptions) {
-        return await highlighter(highlighterOptions)
+    async getHighlighter(highlighterOptions = {}) {
+        this.highlighter = await getHighlighter(Object.assign(defaultHighlighterOptions, highlighterOptions))
+        return this.highlighter
     }
 }
+
+export default new Shiki()
+
+// (async () => {
+//     const shiki = new Shiki(defaultHighlighterOptions)
+//     await shiki.getHighlighter()
+
+//     const tokyoNightJSON = await readFile('static/shiki/themes/tokyo-night-color.json', { encoding: 'utf8' })
+//     const tokyoNight = shiki.toShikiTheme(JSON.parse(tokyoNightJSON))
+//     console.log(tokyoNight)
+//     await shiki.highlighter?.loadTheme(tokyoNight)
+
+//     await shiki.highlighter?.loadTheme('monokai')
+
+//     const theme = shiki.highlighter?.getTheme(tokyoNight.name)
+
+//     console.log(shiki)
+//     console.log(shiki.highlighter?.getLoadedThemes())
+//     console.log(shiki.highlighter?.getLoadedLanguages())
+//     console.log(theme)
+// })()
