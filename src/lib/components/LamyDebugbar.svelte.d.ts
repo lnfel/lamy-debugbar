@@ -1,31 +1,31 @@
-import { SvelteComponentTyped } from "svelte";
+import { SvelteComponent } from "svelte";
 declare const __propDef: {
     props: {
         data?: {} | undefined;
         open?: boolean | undefined;
         highlighter?: import("shiki-es").HighlighterOptions | undefined;
-        customTheme?: Object | undefined;
+        customTheme?: any;
     };
     events: {
         [evt: string]: CustomEvent<any>;
     };
     slots: {
-        icon: any;
+        icon: {};
     };
 };
 export type LamyDebugbarProps = typeof __propDef.props;
 export type LamyDebugbarEvents = typeof __propDef.events;
 export type LamyDebugbarSlots = typeof __propDef.slots;
-export default class LamyDebugbar extends SvelteComponentTyped<{
+export default class LamyDebugbar extends SvelteComponent<{
     data?: {} | undefined;
     open?: boolean | undefined;
     highlighter?: import("shiki-es").HighlighterOptions | undefined;
     noIcon?: boolean;
-    customTheme?: Object | undefined;
+    customTheme?: any;
 }, {
     [evt: string]: CustomEvent<any>;
 }, {
-    icon: any;
+    icon: {};
 }> {
 }
 export {};
