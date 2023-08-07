@@ -1,26 +1,35 @@
 <script>
     import { page } from '$app/stores'
-    import { afterUpdate, onMount } from 'svelte'
+    // import LamyDebugbar from 'lamy-debugbar'
     // import LamyDebugbar from "lamy-debugbar/dist/components/LamyDebugbar.svelte"
-    import LamyDebugbar from "$lib/components/LamyDebugbar.svelte"
+    // import LamyDebugbar from "$lib/components/LamyDebugbar.svelte"
+    import LamyDebugbar from '$lib/components/LamyDebugbar.svelte'
     import Code from "$lib/components/Code.svelte"
     import Link from "$lib/components/Link.svelte"
-    import Pulse from "$lib/components/Pulse.svelte"
+    import SSRB from "$lib/components/SSRB.svelte"
+    import Flower from "$lib/components/Flower.svelte"
+    // import Pulse from "$lib/components/Pulse.svelte"
 
     const themes = ['css-variables', 'dark-plus', 'dracula-soft', 'dracula', 'github-dark-dimmed', 'github-dark', 'github-light', 'hc_light', 'light-plus', 'material-darker', 'material-default', 'material-lighter', 'material-ocean', 'material-palenight', 'min-dark', 'min-light', 'monokai', 'nord', 'one-dark-pro', 'poimandres', 'rose-pine-dawn', 'rose-pine-moon', 'rose-pine', 'slack-dark', 'slack-ochin', 'solarized-dark', 'solarized-light', 'vitesse-dark', 'vitesse-light']
     /**
-     * @type {undefined|String}
+     * @type {String}
      */
     let selectedTheme = 'material-palenight'
     let open = false
+    let noIcon = false
     let sampleData = {...$page}
     let pokemon = ""
+    /** @type {any} */
+    let tokyoNight
+    let customIcon = false
 
     let promise = new Promise((resolve, reject) => {
         resolve({})
     })
 
     const reloadDebugbar = async () => {
+        tokyoNight = null
+
         promise = new Promise((resolve, reject) => {
             setTimeout(() => resolve({}), 1000)
         })
@@ -46,6 +55,11 @@
         } catch (error) {
             console.log('No booty found.')
         }
+    }
+
+    const loadTokyoNight = async () => {
+        const response = await fetch('/shiki/themes/tokyo-night-color.json')
+        tokyoNight = await response.json()
     }
 </script>
 
@@ -78,12 +92,22 @@
                 </label>
             </div>
 
+            <div class="flex items-center gap-2 pl-1">
+                <input type="checkbox" id="noIcon" bind:checked={noIcon} class="appearance-none outline-none w-4 h-4 rounded bg-sky-100 border border-sky-500 ring-2 ring-transparent ring-offset-2 dark:ring-offset-sky-dark focus:ring-sky-500 dark:focus:ring-sky-500">
+                <label for="noIcon" class="text-sm font-medium text-gray-700 dark:text-white">
+                    <span>No icon</span>
+                </label>
+            </div>
+
             <div class="flex items-center gap-4">
                 <button on:click={catchPokemon} type="button" class="whitespace-nowrap text-base font-medium rounded-md shadow-sm text-white dark:text-sky-900 dark:focus:text-white bg-sky-500 dark:bg-sky-300 dark:focus:bg-sky-700 hover:bg-sky-700 dark:hover:bg-sky-200 focus:outline-none focus:ring-2 dark:focus:ring-0 focus:ring-offset-2 dark:focus:ring-offset-0 focus:ring-sky-500 border-2 border-transparent dark:focus:border-sky-100 px-2 py-1">
-                    Fetch for Pokémon
+                    Bring up Pokédex
                 </button>
-                <input type="text" placeholder="Pikachu (Huge data)" bind:value={pokemon}
-                    class="block w-full bg-sky-100 autofill:shadow-fill-white autofill:text-fill-gray-900 autofill:dark:shadow-fill-sky-100 autofill:dark:text-fill-sky-900 text-sky-900 text-sm rounded-md shadow-sm outline-none ring-2 ring-sky-300 dark:ring-sky-100 focus:ring-sky-500 focus:dark:ring-sky-100 border-2 border-transparent focus:dark:border-sky-500 px-2 leading-7">
+                <!-- <button on:click={catchPokemon} type="button" class="whitespace-nowrap text-base font-medium rounded-md shadow-sm text-white dark:text-sky-900 dark:focus:text-white bg-sky-500 dark:bg-sky-300 dark:focus:bg-sky-700 hover:bg-sky-700 dark:hover:bg-sky-200 focus:outline-none focus:ring-2 dark:focus:ring-0 focus:ring-offset-2 dark:focus:ring-offset-0 focus:ring-sky-500 border-2 border-transparent dark:focus:border-sky-100 px-2 py-1">
+                    Fetch for Pokémon
+                </button> -->
+                <!-- <input type="text" placeholder="Pikachu (Huge data)" bind:value={pokemon}
+                    class="block w-full bg-sky-100 autofill:shadow-fill-white autofill:text-fill-gray-900 autofill:dark:shadow-fill-sky-100 autofill:dark:text-fill-sky-900 text-sky-900 text-sm rounded-md shadow-sm outline-none ring-2 ring-sky-300 dark:ring-sky-100 focus:ring-sky-500 focus:dark:ring-sky-100 border-2 border-transparent focus:dark:border-sky-500 px-2 leading-7"> -->
             </div>
 
             <div class="flex items-center gap-2">
@@ -91,6 +115,31 @@
                     Fetch Dummy Product (small data)
                 </button>
             </div>
+
+            <div class="flex items-center gap-2">
+                <button on:click={loadTokyoNight} type="button" class="whitespace-nowrap text-base font-medium rounded-md shadow-sm text-white dark:text-sky-900 dark:focus:text-white bg-sky-500 dark:bg-sky-300 dark:focus:bg-sky-700 hover:bg-sky-700 dark:hover:bg-sky-200 focus:outline-none focus:ring-2 dark:focus:ring-0 focus:ring-offset-2 dark:focus:ring-offset-0 focus:ring-sky-500 border-2 border-transparent dark:focus:border-sky-100 px-2 py-1">
+                    Custom theme TokyoNight
+                </button>
+            </div>
+
+            <!-- <div class="flex items-center gap-2">
+                <button on:click={() => customIcon = !customIcon} type="button" class="flex items-center gap-2 whitespace-nowrap text-base font-medium rounded-md shadow-sm text-white dark:text-sky-900 dark:focus:text-white bg-sky-500 dark:bg-sky-300 dark:focus:bg-sky-700 hover:bg-sky-700 dark:hover:bg-sky-200 focus:outline-none focus:ring-2 dark:focus:ring-0 focus:ring-offset-2 dark:focus:ring-offset-0 focus:ring-sky-500 border-2 border-transparent dark:focus:border-sky-100 px-2 py-1">
+                    <img src="images/ssrb-192x192.webp" alt="SSRB" class="w-6 h-6" />
+                    <span>Toggle Custom Icon</span>
+                </button>
+            </div> -->
+
+            <div class="flex items-center gap-2 pl-1">
+                <input type="checkbox" id="customIcon" bind:checked={customIcon} class="appearance-none outline-none w-4 h-4 rounded bg-sky-100 border border-sky-500 ring-2 ring-transparent ring-offset-2 dark:ring-offset-sky-dark focus:ring-sky-500 dark:focus:ring-sky-500">
+                <label for="customIcon" class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-white">
+                    <img src="images/ssrb-192x192.webp" alt="SSRB" class="w-6 h-6" />
+                    <span>Custom Icon</span>
+                </label>
+            </div>
+
+            <!-- <div>
+                <a href="/about">About</a>
+            </div> -->
         </div>
     </section>
 
@@ -105,8 +154,8 @@
     <span>This project is a tribute to <Link href="https://www.youtube.com/@YukihanaLamy">Yukihana Lamy</Link></span>
 </footer>
 
-{#if selectedTheme}
-    {#await promise}
+<!-- {#if selectedTheme} -->
+    <!-- {#await promise}
         <div class="fixed bottom-0 inset-x-0">
             <Pulse />
         </div>
@@ -114,7 +163,18 @@
         <LamyDebugbar bind:open highlighter={{
             theme: `${selectedTheme}`
         }} bind:data={sampleData}/>
-    {/await}
+    {/await} -->
+<!-- {/if} -->
+
+
+{#if tokyoNight}
+    <LamyDebugbar bind:open bind:data={sampleData} bind:noIcon bind:customTheme={tokyoNight} />
+{:else}
+    <LamyDebugbar bind:open bind:data={sampleData} highlighter={{
+        theme: `${selectedTheme}`
+    }} bind:noIcon>
+        <svelte:component slot="icon" this={customIcon ? SSRB : Flower} />
+    </LamyDebugbar>
 {/if}
 
 <style>
