@@ -1,6 +1,5 @@
 <script>
     import { onMount, afterUpdate } from "svelte"
-    import { browser } from "$app/environment"
     import Shiki, { defaultHighlighterOptions } from "$lib/shiki.js"
     /**
      * Using Twind in library mode
