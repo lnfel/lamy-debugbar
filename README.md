@@ -76,16 +76,66 @@ There are three properties exposed by Lamy Debugbar, data, open and highlighter.
 <LamyDebugbar 
     data?={any}
     open?={false}
+    noIcon?={false}
     highlighter?={{
-        theme: 'material-palenight',
+        theme: 'material-theme-palenight',
         langs: ['javascript']
-    }} />
+    }}
+    customTheme?={Object} />
 ```
 
 | Prop | Type | Default value | Description |
 | :--- | :--- | :--- | --- |
 | data | any | {} | The object that will be displayed by Lamy Debugbar. |
 | open | Boolean | false | Whether to keep the debugbar expanded. |
-| highlighter | Object | `{ theme: 'material-palenight', langs: ['javascript'] }` | Shiki's [HighlighterOptions](https://github.com/shikijs/shiki#configuration-and-options) |
+| noIcon | Boolean | false | Whether to display debugbar icon. |
+| highlighter | Object | `{ theme: 'material-theme-palenight', langs: ['javascript'] }` | Shiki's [HighlighterOptions](https://github.com/shikijs/shiki#configuration-and-options) |
+| customTheme | Object | undefined | Load a custom theme that is not shipped with shiki by default. Examples are [Tokyo Night](https://github.com/enkia/tokyo-night-vscode-theme/tree/master/themes) and [SynthWave 84](https://github.com/robb0wen/synthwave-vscode/blob/master/themes/synthwave-color-theme.json). Note that shiki only accepts valid JSON syntax and will reject malformed JSON, if you have trouble loading a custom theme, check first to see if the json data is strictly valid. Trailing commas and comments are usually the issue. |
 
 For a list of available themes head to Shiki's doc about [themes](https://github.com/shikijs/shiki/blob/main/docs/themes.md#all-themes).
+
+### Loading up a custom theme
+
+In this section I will show how to load a custom theme named [Tokyo Night](https://github.com/enkia/tokyo-night-vscode-theme/tree/master/themes).
+
+> Note when using `customTheme` prop, the `highlighter` prop should not be used in conjunction of `customTheme`. `highlighter` will still have javascript language loaded by default, since LamyDebugbar only works with JSON data, we don't need anything else.
+
+1. First I took some time to get raw json file of [Tokyo Night](https://github.com/enkia/tokyo-night-vscode-theme/blob/master/themes/tokyo-night-color-theme.json)
+2. Saved it somewhere we can fetched later, in my case I saved it inside `static/shiki/themes/tokyo-night-color.json`
+3. If we fetch the json file as is, we are bound to encounter a lot of errors because of JSON syntax alone. I then took my time to remove trailing commas and comments then saved the cleaned up json file. There are tools out there that can automate this trivial task, just google **JSON syntax formatter** or linter.
+4. Let's import our custom theme!
+
+```svelte
+<script>
+	import { onMount } from "svelte"
+    import { page } from "$app/stores"
+    import LamyDebugbar from "$lib/components/LamyDebugbar.svelte"
+
+    /** @type {Object} */
+    let customTheme
+    onMount(async () => {
+        const response = await fetch('/shiki/themes/tokyo-night-color.json')
+        // Note that we get Object representation of JSON data and not a string.
+        // If you are loading JSON as string, use JSON.parse to convert it to Object.
+        customTheme = await response.json()
+    })
+</script>
+
+<LamyDebugbar data={{...$page}} customTheme={customTheme} />
+```
+
+### Loading up a custom icon
+
+Not a fan of flowers? Not a problem since you can just either remove displaying icon using `noIcon` prop or replace it with your own using `component slot` named `icon`.
+
+```svelte
+<script>
+    import { page } from '$app/stores'
+</script>
+
+<LamyDebugbar bind:data={{...$page}} highlighter={{
+    theme: `min-dark`
+}}>
+    <img slot="icon" src="/images/ssrb-192x192.webp" alt="SSRB" width="40" height="40" />
+</LamyDebugbar>
+```
