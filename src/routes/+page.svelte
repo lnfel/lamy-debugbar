@@ -10,11 +10,11 @@
     import Flower from "$lib/components/Flower.svelte"
     // import Pulse from "$lib/components/Pulse.svelte"
 
-    const themes = ['css-variables', 'dark-plus', 'dracula-soft', 'dracula', 'github-dark-dimmed', 'github-dark', 'github-light', 'hc_light', 'light-plus', 'material-darker', 'material-default', 'material-lighter', 'material-ocean', 'material-palenight', 'min-dark', 'min-light', 'monokai', 'nord', 'one-dark-pro', 'poimandres', 'rose-pine-dawn', 'rose-pine-moon', 'rose-pine', 'slack-dark', 'slack-ochin', 'solarized-dark', 'solarized-light', 'vitesse-dark', 'vitesse-light']
+    const themes = ['css-variables', 'dark-plus', 'dracula-soft', 'dracula', 'github-dark-dimmed', 'github-dark', 'github-light', 'hc_light', 'light-plus', 'material-theme-darker', 'material-theme-lighter', 'material-theme-ocean', 'material-theme-palenight', 'material-theme', 'min-dark', 'min-light', 'monokai', 'nord', 'one-dark-pro', 'poimandres', 'rose-pine-dawn', 'rose-pine-moon', 'rose-pine', 'slack-dark', 'slack-ochin', 'solarized-dark', 'solarized-light', 'vitesse-dark', 'vitesse-light']
     /**
      * @type {String}
      */
-    let selectedTheme = 'material-palenight'
+    let selectedTheme = 'material-theme-palenight'
     let open = false
     let noIcon = false
     let sampleData = {...$page}
@@ -168,7 +168,9 @@
 
 
 {#if tokyoNight}
-    <LamyDebugbar bind:open bind:data={sampleData} bind:noIcon bind:customTheme={tokyoNight} />
+    <LamyDebugbar bind:open bind:data={sampleData} bind:noIcon bind:customTheme={tokyoNight}>
+        <svelte:component slot="icon" this={customIcon ? SSRB : Flower} />
+    </LamyDebugbar>
 {:else}
     <LamyDebugbar bind:open bind:data={sampleData} highlighter={{
         theme: `${selectedTheme}`

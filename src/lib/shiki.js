@@ -17,7 +17,7 @@ export const loadWASM = async () => {
  * @type {import('shiki-es').HighlighterOptions}
  */
 export const defaultHighlighterOptions = {
-    theme: 'material-palenight',
+    theme: 'material-theme-palenight',
     langs: ['javascript']
 }
 
