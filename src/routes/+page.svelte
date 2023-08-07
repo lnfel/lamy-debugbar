@@ -20,7 +20,7 @@
     let sampleData = {...$page}
     let pokemon = ""
     /** @type {any} */
-    let tokyoNight
+    let customTheme
     let customIcon = false
 
     let promise = new Promise((resolve, reject) => {
@@ -28,7 +28,7 @@
     })
 
     const reloadDebugbar = async () => {
-        tokyoNight = null
+        customTheme = null
 
         promise = new Promise((resolve, reject) => {
             setTimeout(() => resolve({}), 1000)
@@ -57,9 +57,12 @@
         }
     }
 
-    const loadTokyoNight = async () => {
-        const response = await fetch('/shiki/themes/tokyo-night-color.json')
-        tokyoNight = await response.json()
+    /**
+     * @param {String} path Shiki themes path url
+     */
+    const loadCustomTheme = async (path) => {
+        const response = await fetch(path)
+        customTheme = await response.json()
     }
 </script>
 
@@ -84,7 +87,7 @@
 
     <section class="w-full max-w-4xl mx-auto space-y-4">
         <h2 class="font-medium text-gray-700 dark:text-white">Try things out</h2>
-        <div class="flex flex-wrap items-center lg:justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-4">
             <div class="flex items-center gap-2 pl-1">
                 <input type="checkbox" id="open" bind:checked={open} class="appearance-none outline-none w-4 h-4 rounded bg-sky-100 border border-sky-500 ring-2 ring-transparent ring-offset-2 dark:ring-offset-sky-dark focus:ring-sky-500 dark:focus:ring-sky-500">
                 <label for="open" class="text-sm font-medium text-gray-700 dark:text-white">
@@ -117,8 +120,14 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <button on:click={loadTokyoNight} type="button" class="whitespace-nowrap text-base font-medium rounded-md shadow-sm text-white dark:text-sky-900 dark:focus:text-white bg-sky-500 dark:bg-sky-300 dark:focus:bg-sky-700 hover:bg-sky-700 dark:hover:bg-sky-200 focus:outline-none focus:ring-2 dark:focus:ring-0 focus:ring-offset-2 dark:focus:ring-offset-0 focus:ring-sky-500 border-2 border-transparent dark:focus:border-sky-100 px-2 py-1">
-                    Custom theme TokyoNight
+                <button on:click={() => loadCustomTheme('/shiki/themes/tokyo-night-color.json')} type="button" class="whitespace-nowrap text-base font-medium rounded-md shadow-sm text-white dark:text-sky-900 dark:focus:text-white bg-sky-500 dark:bg-sky-300 dark:focus:bg-sky-700 hover:bg-sky-700 dark:hover:bg-sky-200 focus:outline-none focus:ring-2 dark:focus:ring-0 focus:ring-offset-2 dark:focus:ring-offset-0 focus:ring-sky-500 border-2 border-transparent dark:focus:border-sky-100 px-2 py-1">
+                    VScode theme Tokyo Night
+                </button>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button on:click={() => loadCustomTheme('/shiki/themes/synthwave-color-theme.json')} type="button" class="whitespace-nowrap text-base font-medium rounded-md shadow-sm text-white dark:text-sky-900 dark:focus:text-white bg-sky-500 dark:bg-sky-300 dark:focus:bg-sky-700 hover:bg-sky-700 dark:hover:bg-sky-200 focus:outline-none focus:ring-2 dark:focus:ring-0 focus:ring-offset-2 dark:focus:ring-offset-0 focus:ring-sky-500 border-2 border-transparent dark:focus:border-sky-100 px-2 py-1">
+                    VScode theme Synthwave '84
                 </button>
             </div>
 
@@ -167,8 +176,8 @@
 <!-- {/if} -->
 
 
-{#if tokyoNight}
-    <LamyDebugbar bind:open bind:data={sampleData} bind:noIcon bind:customTheme={tokyoNight}>
+{#if customTheme}
+    <LamyDebugbar bind:open bind:data={sampleData} bind:noIcon bind:customTheme>
         <svelte:component slot="icon" this={customIcon ? SSRB : Flower} />
     </LamyDebugbar>
 {:else}

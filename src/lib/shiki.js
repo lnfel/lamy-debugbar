@@ -1,4 +1,5 @@
 import { getHighlighter, toShikiTheme, renderToHtml } from 'shiki-es'
+// import { readFile } from 'fs/promises'
 
 /**
  * Host the onig.wasm file, loading from CDN is slow af
@@ -64,14 +65,15 @@ export default new Shiki()
 //     const shiki = new Shiki(defaultHighlighterOptions)
 //     await shiki.getHighlighter()
 
-//     const tokyoNightJSON = await readFile('static/shiki/themes/tokyo-night-color.json', { encoding: 'utf8' })
-//     const tokyoNight = shiki.toShikiTheme(JSON.parse(tokyoNightJSON))
-//     console.log(tokyoNight)
-//     await shiki.highlighter?.loadTheme(tokyoNight)
+//     // const customThemeJSON = await readFile('static/shiki/themes/tokyo-night-color.json', { encoding: 'utf8' })
+//     const customThemeJSON = await readFile('static/shiki/themes/synthwave-color-theme.json', { encoding: 'utf8' })
+//     const customTheme = shiki.toShikiTheme(JSON.parse(customThemeJSON))
+//     console.log(customTheme)
+//     await shiki.highlighter?.loadTheme(customTheme)
 
 //     await shiki.highlighter?.loadTheme('monokai')
 
-//     const theme = shiki.highlighter?.getTheme(tokyoNight.name)
+//     const theme = shiki.highlighter?.getTheme(customTheme.name)
 
 //     console.log(shiki)
 //     console.log(shiki.highlighter?.getLoadedThemes())
