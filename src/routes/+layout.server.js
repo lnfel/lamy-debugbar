@@ -1,5 +1,5 @@
 import install from '@twind/with-sveltekit'
-import config from './twind.config.js'
+import config from '$lib/twind.config.js'
 
 install(config)
 
