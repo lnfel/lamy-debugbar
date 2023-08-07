@@ -4,6 +4,7 @@ declare const __propDef: {
         data?: {} | undefined;
         open?: boolean | undefined;
         highlighter?: import("shiki-es").HighlighterOptions | undefined;
+        noIcon?: boolean;
         customTheme?: any;
     };
     events: {

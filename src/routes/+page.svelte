@@ -112,7 +112,7 @@
 
             <div class="flex items-center gap-2">
                 <button on:click={fetchDummyProduct} type="button" class="whitespace-nowrap text-base font-medium rounded-md shadow-sm text-white dark:text-sky-900 dark:focus:text-white bg-sky-500 dark:bg-sky-300 dark:focus:bg-sky-700 hover:bg-sky-700 dark:hover:bg-sky-200 focus:outline-none focus:ring-2 dark:focus:ring-0 focus:ring-offset-2 dark:focus:ring-offset-0 focus:ring-sky-500 border-2 border-transparent dark:focus:border-sky-100 px-2 py-1">
-                    Fetch Dummy Product (small data)
+                    Fetch Dummy Product
                 </button>
             </div>
 
