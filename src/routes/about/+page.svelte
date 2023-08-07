@@ -15,7 +15,9 @@
 
 <LamyDebugbar bind:data={sampleData} highlighter={{
     theme: `min-dark`
-}} noIcon />
+}}>
+    <img slot="icon" src="{base}/images/ssrb-192x192.webp" alt="SSRB" width="40" height="40" />
+</LamyDebugbar>
 
 <!-- {#await promise}
     <div class="fixed bottom-0 inset-x-0">
