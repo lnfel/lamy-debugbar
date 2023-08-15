@@ -30,7 +30,7 @@
     let offline = false
 
     onMount(() => {
-        offlineToggler.set(stringToBoolean(localStorage.getItem('lamy-debugbar:offline')) ?? false)
+        offlineToggler.set(stringToBoolean(localStorage.getItem('lamy-debugbar:offline') ?? 'false'))
 
         offlineToggler.subscribe((value) => {
             localStorage.setItem('lamy-debugbar:offline', String(value))
