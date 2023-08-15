@@ -1,6 +1,8 @@
 <script>
     import { page } from '$app/stores'
     import { base } from '$app/paths'
+    import { writable } from 'svelte/store'
+    import { onMount } from 'svelte'
     // import LamyDebugbar from 'lamy-debugbar'
     // import LamyDebugbar from "lamy-debugbar/dist/components/LamyDebugbar.svelte"
     // import LamyDebugbar from "$lib/components/LamyDebugbar.svelte"
@@ -23,6 +25,19 @@
     /** @type {any} */
     let customTheme
     let customIcon = false
+    let offlineToggler = writable()
+    /** @type {Boolean} */
+    let offline = false
+
+    onMount(() => {
+        offlineToggler.set(stringToBoolean(localStorage.getItem('lamy-debugbar:offline')) ?? false)
+
+        offlineToggler.subscribe((value) => {
+            localStorage.setItem('lamy-debugbar:offline', String(value))
+        })
+
+        offline = $offlineToggler
+    })
 
     let promise = new Promise((resolve, reject) => {
         resolve({})
@@ -64,6 +79,24 @@
     const loadCustomTheme = async (path) => {
         const response = await fetch(path)
         customTheme = await response.json()
+    }
+
+    /**
+     * Convert string true and false to boolean counterparts
+     * 
+     * @param {String|null} string
+     * @returns {Boolean} boolean
+     */
+     function stringToBoolean(string) {
+        if (string) {
+            if (/^true$/i.test(string)) {
+                return true
+            }
+            if (/^false$/i.test(string)) {
+                return false
+            }
+        }
+        throw Error('stringToBoolean string parameter only accepts true and false as literal string.')
     }
 </script>
 
@@ -147,6 +180,13 @@
                 </label>
             </div>
 
+            <div class="flex items-center gap-2 pl-1">
+                <input type="checkbox" id="offline" bind:checked={$offlineToggler} class="appearance-none outline-none w-4 h-4 rounded bg-sky-100 border border-sky-500 ring-2 ring-transparent ring-offset-2 dark:ring-offset-sky-dark focus:ring-sky-500 dark:focus:ring-sky-500">
+                <label for="offline" class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-white">
+                    <span>Offline</span>
+                </label>
+            </div>
+
             <!-- <div>
                 <a href="/about">About</a>
             </div> -->
@@ -178,13 +218,13 @@
 
 
 {#if customTheme}
-    <LamyDebugbar bind:open bind:data={sampleData} bind:noIcon bind:customTheme>
+    <LamyDebugbar bind:open bind:data={sampleData} bind:noIcon bind:customTheme bind:offline>
         <svelte:component slot="icon" this={customIcon ? SSRB : Flower} />
     </LamyDebugbar>
 {:else}
     <LamyDebugbar bind:open bind:data={sampleData} highlighter={{
         theme: `${selectedTheme}`
-    }} bind:noIcon>
+    }} bind:noIcon bind:offline>
         <svelte:component slot="icon" this={customIcon ? SSRB : Flower} />
     </LamyDebugbar>
 {/if}
