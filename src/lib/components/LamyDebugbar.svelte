@@ -70,7 +70,7 @@
         const html = []
         for (const [key, code] of Object.entries(data)) {
             if (shiki.highlighter) {
-                const tokens = shiki.highlighter.codeToThemedTokens(JSON.stringify(code, null, 2), 'js', currentTheme?.name)
+                const tokens = shiki.highlighter.codeToThemedTokens(JSON.stringify(code, null, 2), 'js', currentTheme?.name, { includeExplanation: false })
                 /** @type {import('shiki-es').HtmlRendererOptions} */
                 const options = {
                     bg: currentTheme?.bg,
