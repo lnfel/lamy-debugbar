@@ -70,7 +70,7 @@ The debugbar will show tab for `page` and `server`. And since we declared `debug
 
 ## Configuration
 
-There are three properties exposed by Lamy Debugbar, data, open and highlighter.
+There are six properties exposed by Lamy Debugbar, data, open, noIcon, highlighter, customTheme and offline as well as one optional slot named icon.
 
 ```svelte
 <LamyDebugbar 
@@ -81,18 +81,32 @@ There are three properties exposed by Lamy Debugbar, data, open and highlighter.
         theme: 'material-theme-palenight',
         langs: ['javascript']
     }}
-    customTheme?={Object} />
+    customTheme?={Object}
+    offline?={false}>
+
+    <slot name="icon" />
+
+</LamyDebugbar>
 ```
 
-| Prop | Type | Default value | Description |
+### Props
+
+| Prop name | Type | Default value | Description |
 | :--- | :--- | :--- | --- |
 | data | any | {} | The object that will be displayed by Lamy Debugbar. |
 | open | Boolean | false | Whether to keep the debugbar expanded. |
 | noIcon | Boolean | false | Whether to display debugbar icon. |
-| highlighter | Object | `{ theme: 'material-theme-palenight', langs: ['javascript'] }` | Shiki's [HighlighterOptions](https://github.com/shikijs/shiki#configuration-and-options) |
-| customTheme | Object | undefined | Load a custom theme that is not shipped with shiki by default. Examples are [Tokyo Night](https://github.com/enkia/tokyo-night-vscode-theme/tree/master/themes) and [SynthWave 84](https://github.com/robb0wen/synthwave-vscode/blob/master/themes/synthwave-color-theme.json). Note that shiki only accepts valid JSON syntax and will reject malformed JSON, if you have trouble loading a custom theme, check first to see if the json data is strictly valid. Trailing commas and comments are usually the issue. |
+| highlighter | Object | Material theme palenight and javascript language[^1] | Shiki's [HighlighterOptions](https://github.com/shikijs/shiki#configuration-and-options) |
+| [offline](#using-debugbar-offline) | Boolean | false | For convenience, an offline prop is exposed to allow component to function as expected while working locally without internet. This requires the project you are working on to host the shiki themes and language you are expected to be using as well as the oniguruma wasm file. |
+| [customTheme](#loading-up-a-custom-theme) | Object | undefined | Load a custom theme that is not shipped with shiki by default. Examples are [Tokyo Night](https://github.com/enkia/tokyo-night-vscode-theme/tree/master/themes) and [SynthWave 84](https://github.com/robb0wen/synthwave-vscode/blob/master/themes/synthwave-color-theme.json). Note that shiki only accepts valid JSON syntax and will reject malformed JSON, if you have trouble loading a custom theme, check first to see if the json data is strictly valid. Trailing commas and comments are usually the issue. |
 
-For a list of available themes head to Shiki's doc about [themes](https://github.com/shikijs/shiki/blob/main/docs/themes.md#all-themes).
+For a list of available themes head to [Shiki's doc about themes](https://github.com/shikijs/shiki/blob/main/docs/themes.md#shiki-themes). And a list of themes not bundled by Shiki can be viewed at [vscodethemes website](https://vscodethemes.com/).
+
+### Slots
+
+| Slot name | Default element | Description |
+| :--- | :--- | ---|
+| [icon](#loading-up-a-custom-icon) | Lamy Debugbar flower icon[^2] | Define your own custom icon and replace the default flower icon. |
 
 ### Loading up a custom theme
 
@@ -139,3 +153,55 @@ Not a fan of flowers? Not a problem since you can just either remove displaying 
     <img slot="icon" src="/images/ssrb-192x192.webp" alt="SSRB" width="40" height="40" />
 </LamyDebugbar>
 ```
+
+### Using debugbar offline
+
+By default, shiki themes, language and oniguruma wasm engine is fetched from a [CDN](https://cdn.jsdelivr.net/npm/shiki-es@latest/dist/assets/). This is good as we don't need to manage the themes and language ourselves. As part of progressive enhancement the `offline` prop allows users to use Lamy Debugbar even in dire circumstances, such as when coding without internet.
+
+```svelte
+<script>
+    import { page } from '$app/stores'
+</script>
+
+<LamyDebugbar bind:data={{...$page}} offline={true} highlighter={{
+    theme: `min-dark`
+}} />
+```
+
+Enabling this prop however, will require your app to host the necessary themes and languages as well as the oniguruma wasm file needed by shiki to function. Lamy Debugbar will look for shiki themes inside `shiki/themes`, language files inside `shiki/languages` and oniguruma wasm engine at `shiki/onig.wasm`. Here is an example on how rose-pine-dawn theme and javascript language is hosted on my own sveltekit app:
+
+```s
+awesome-project/
+├─ src/
+├─ static/
+│  ├─ shiki/
+│  │  ├─ themes/
+│  │  │  ├─ rose-pine-dawn.json
+│  │  ├─ languages/
+│  │  │  ├─ javascript.tmLanguage.json
+│  │  ├─ onig.wasm
+```
+
+The themes, languages and onig.wasm files can be downloaded from [shiki-es CDN](https://cdn.jsdelivr.net/npm/shiki-es@latest/dist/assets/).
+
+## Roadmap
+
+Due to how themes work, there is no unified way of getting the right color combination for lamy debugbar at the moment, some themes will not be as good when used due to certain theming tokens not present. Old themes usually have this issue. Newer themes are much more compliant with new vscode theming.
+
+- [ ] Find a way for users to set color scheme based on current theme pallete chosen. Shiki has this css-variables feature which might be the one we are looking to consider using.
+
+[^1]: Default highlighter options
+    ```js
+        {
+            theme: 'material-theme-palenight',
+            langs: ['javascript']
+        }
+    ```
+
+[^2]: Default Lamy Debugbar icon
+    ```html
+    <div>
+        <img src="http://localhost:5173/src/lib/assets/lamy-logo-192x192.png" alt="Lamy Debugbar icon" width="40" height="40" class="max-h-10 object-contain py-2">
+        <span class="lamy-summary-text sr-only">Lamy Debugbar</span>
+    </div>
+    ```
