@@ -38,9 +38,6 @@
             if ((shiki.highlighter?.getLoadedThemes()).includes(highlighter?.theme)) {
                 currentTheme = shiki.highlighter?.getTheme(highlighter?.theme)
             }
-            // console.log(shiki.highlighter?.getLoadedThemes())
-            // console.log('currentTheme: ', currentTheme)
-
             renderShiki(data)
         }
     }
@@ -52,12 +49,8 @@
     async function loadCustomTheme(theme) {
         if (theme) {
             const iShikiTheme = shiki.toShikiTheme(theme)
-            // console.log(iShikiTheme)
             await shiki.highlighter?.loadTheme(iShikiTheme)
             currentTheme = shiki.highlighter?.getTheme(iShikiTheme.name)
-            // console.log(shiki.highlighter?.getLoadedThemes())
-            // console.log('currentTheme: ', currentTheme)
-
             renderShiki(data)
         }
     }
@@ -93,17 +86,11 @@
      */
     function switchTab(event) {
         if (shiki.highlighter && currentTheme) {
-            // const activeTabColor = shiki.highlighter.getTheme(currentTheme?.name).colors?.['terminal.ansiBlue'] ?? ''
-            const activeTabColor = currentTheme?.colors?.['tab.activeForeground'] ?? ''
-            // const foregroundColor = shiki.highlighter.getForegroundColor(currentTheme?.name)
-            const foregroundColor = currentTheme.fg
-
             /**
              * @type {NodeListOf<HTMLButtonElement>|null}
              */
             const tabButtons = document.querySelectorAll('.lamy-tab')
             tabButtons?.forEach((button) => {
-                // button.style.color = foregroundColor
                 button.style.background = 'transparent'
                 button.classList.remove(`!bg-[${currentTheme?.colors?.['titleBar.inactiveForeground'] ?? currentTheme?.colors?.['titleBar.activeBackground'] ?? currentTheme?.colors?.['menu.background']}]`)
                 button.classList.remove(`!text-[${currentTheme?.colors?.['tab.activeForeground'] ?? currentTheme?.colors?.['menu.foreground']}]`)
@@ -115,7 +102,6 @@
             })
 
             if (event?.target instanceof HTMLButtonElement && currentTheme.colors) {
-                // event.target.style.color = activeTabColor
                 event.target.classList.add(`!bg-[${currentTheme?.colors?.['titleBar.inactiveForeground'] ?? currentTheme?.colors?.['titleBar.activeBackground'] ?? currentTheme?.colors?.['menu.background']}]`)
                 event.target.classList.add(`!text-[${currentTheme?.colors?.['tab.activeForeground'] ?? currentTheme?.colors?.['menu.foreground']}]`)
                 document.querySelector(`.lamy-tab-content.${event.target.id}`)?.classList.remove(tw('hidden'))
@@ -157,8 +143,6 @@
             await loadTheme(highlighter.theme)
         }
         currentTheme = shiki.highlighter?.getTheme(customTheme?.name ?? highlighter?.theme)
-        // console.log(shiki)
-        // console.log('currentTheme: ', currentTheme)
         
         shikiHTML = renderShiki(data)
         ready = true
@@ -183,15 +167,6 @@
         if (detailsElement) {
             lamyTabs[Number(detailsElement.dataset.current)].click()
         }
-
-        // console.log('Active background')
-        // console.log('titleBar.inactiveForeground: ', currentTheme?.colors?.['titleBar.inactiveForeground'])
-        // console.log('titleBar.activeBackground: ', currentTheme?.colors?.['titleBar.activeBackground'])
-        // console.log('menu.background: ', currentTheme?.colors?.['menu.background'])
-
-        // console.log('Active foreground')
-        // console.log('tab.activeForeground: ', currentTheme?.colors?.['tab.activeForeground'])
-        // console.log('menu.foreground: ', currentTheme?.colors?.['menu.foreground'])
     })
 
     /**
