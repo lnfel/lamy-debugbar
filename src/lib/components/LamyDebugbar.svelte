@@ -1,5 +1,5 @@
 <script>
-    import { onMount, afterUpdate } from "svelte"
+    import { onMount, afterUpdate, tick } from "svelte"
     import Shiki, { defaultHighlighterOptions } from "$lib/shiki.js"
     /**
      * Using Twind in library mode
@@ -18,6 +18,8 @@
     export let noIcon = false
     /** @type {any} */
     export let customTheme = undefined
+    /** @type {Boolean} */
+    export let offline = false
 
     let shiki = Shiki
     /** @type {import('shiki-es').IShikiTheme | undefined} */
@@ -138,6 +140,15 @@
     }
 
     onMount(async () => {
+        // wait for offline prop to populate from localStorage
+        // in most cases we don't need doing this as users would
+        // only need to set offline prop either true or false
+        await tick()
+        if (offline) {
+            const wasm = await fetch('shiki/onig.wasm')
+            shiki.setWasm(wasm)
+            shiki.setCDN('shiki/')
+        }
         await shiki.getHighlighter(highlighter)
         if (customTheme) {
             await loadCustomTheme(customTheme)

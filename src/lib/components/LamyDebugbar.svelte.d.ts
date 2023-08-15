@@ -6,6 +6,7 @@ declare const __propDef: {
         highlighter?: import("shiki-es").HighlighterOptions | undefined;
         noIcon?: boolean;
         customTheme?: any;
+        offline?: boolean;
     };
     events: {
         [evt: string]: CustomEvent<any>;
@@ -23,6 +24,7 @@ export default class LamyDebugbar extends SvelteComponent<{
     highlighter?: import("shiki-es").HighlighterOptions | undefined;
     noIcon?: boolean;
     customTheme?: any;
+    offline?: boolean;
 }, {
     [evt: string]: CustomEvent<any>;
 }, {

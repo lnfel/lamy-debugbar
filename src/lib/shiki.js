@@ -1,5 +1,4 @@
-import { getHighlighter, toShikiTheme, renderToHtml } from 'shiki-es'
-// import { readFile } from 'fs/promises'
+import { getHighlighter, toShikiTheme, renderToHtml, setCDN, setWasm } from 'shiki-es'
 
 /**
  * Host the onig.wasm file, loading from CDN is slow af
@@ -56,6 +55,36 @@ class Shiki {
     async getHighlighter(highlighterOptions = {}) {
         this.highlighter = await getHighlighter(Object.assign(defaultHighlighterOptions, highlighterOptions))
         return this.highlighter
+    }
+
+    /**
+     * Set the route for loading the assets
+     * 
+     * URL should end with `/`
+     * 
+     * For example:
+     * ```js
+     * setCDN('https://unpkg.com/shiki/') // use unpkg
+     * setCDN('/assets/shiki/') // serve by yourself
+     * ```
+     * 
+     * @param {String} root 
+     * @returns {void}
+     */
+    setCDN(root) {
+        setCDN(root)
+    }
+
+    /**
+     * Explicitly set the source for loading the oniguruma web assembly module.
+     * 
+     * Accepts ArrayBuffer or Response (usage of string is deprecated)
+     * 
+     * @param {ArrayBuffer | Response} data 
+     * @returns {void}
+     */
+    setWasm(data) {
+        setWasm(data)
     }
 }
 
