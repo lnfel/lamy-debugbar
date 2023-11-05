@@ -23,8 +23,8 @@
 		"test:unit": "vitest",
 		"lint": "prettier --plugin-search-dir . --check .",
 		"format": "prettier --plugin-search-dir . --write .",
-		"deploy": "npm run build && pnpx gh-pages -d build -t true",
-        "publish": "npm publish --access public"
+		"gh:deploy": "npm run build && pnpx gh-pages -d build -t true",
+        "npm:publish": "npm publish --access public"
 	},
 	"exports": {
 		".": {
