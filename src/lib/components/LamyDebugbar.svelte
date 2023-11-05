@@ -34,8 +34,7 @@
     async function loadTheme(theme) {
         if (shiki.highlighter) {
             await shiki.highlighter?.loadTheme(theme)
-            /** @ts-ignore */
-            if ((shiki.highlighter?.getLoadedThemes()).includes(highlighter?.theme)) {
+            if ((shiki.highlighter?.getLoadedThemes()).includes(/** @type {import('shiki-es').Theme} */ (highlighter.theme))) {
                 currentTheme = shiki.highlighter?.getTheme(highlighter?.theme)
             }
             renderShiki(data)
@@ -69,7 +68,7 @@
                     bg: currentTheme?.bg,
                     elements: {
                         pre({ className, style, children }) {
-                            return `<pre class="${className} ${tw('overflow-x-scroll px-4 py-4')}" style="${style}" tabindex="0">${children}</pre>`
+                            return `<pre class="${className} ${tw('overflow-x-auto px-4 py-4')}" style="${style}" tabindex="0">${children}</pre>`
                         }
                     }
                 }
@@ -117,8 +116,7 @@
 
     $: {
         if (shiki.highlighter && !customTheme && highlighter) {
-            /** @ts-ignore */
-            loadTheme(highlighter.theme)
+            loadTheme(/** @type {import('shiki-es').IThemeRegistration} */ (highlighter.theme))
         } else if (shiki.highlighter && customTheme) {
             loadCustomTheme(customTheme)
         }
@@ -139,8 +137,7 @@
         if (customTheme) {
             await loadCustomTheme(customTheme)
         } else {
-            /** @ts-ignore */
-            await loadTheme(highlighter.theme)
+            await loadTheme(/** @type {import('shiki-es').IThemeRegistration} */ (highlighter.theme))
         }
         currentTheme = shiki.highlighter?.getTheme(customTheme?.name ?? highlighter?.theme)
         
