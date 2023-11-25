@@ -75,5 +75,15 @@
 		"debugbar",
 		"development",
 		"debugging"
-	]
+	],
+    "pnpm": {
+		"peerDependencyRules": {
+			"allowedVersions": {
+				"@twind/core>typescript": "5",
+				"@twind/preset-autoprefix>typescript": "5",
+				"@twind/preset-tailwind>typescript": "5",
+				"@twind/with-sveltekit>typescript": "5"
+			}
+		}
+	}
 }
