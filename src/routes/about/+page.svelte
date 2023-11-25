@@ -11,7 +11,7 @@
     })
 </script>
 
-<a href="{base}/">Home</a>
+<a href="{base}/" class="!text-malibu-500">Home</a>
 
 <LamyDebugbar bind:data={sampleData} highlighter={{
     theme: `min-dark`
