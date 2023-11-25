@@ -130,8 +130,12 @@
         await tick()
         if (offline) {
             const wasm = await fetch('shiki/onig.wasm')
-            shiki.setWasm(wasm)
-            shiki.setCDN('shiki/')
+            if (wasm.status === 200) {
+                shiki.setWasm(wasm)
+                shiki.setCDN('shiki/')
+            } else {
+                console.warn('[lamy-debugbar:error]: ', 'Could not fetch shiki assets offline. Have you placed the assets needed in static/shiki folder? https://github.com/lnfel/lamy-debugbar#using-debugbar-offline')
+            }
         }
         await shiki.getHighlighter(highlighter)
         if (customTheme) {
