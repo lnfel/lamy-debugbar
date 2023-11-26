@@ -10,7 +10,8 @@
 		"sourceMap": true,
 		"strict": true,
         // Prevent deprecation warning from vscode typescript
-        "ignoreDeprecations": "5.0"
+        "ignoreDeprecations": "5.0",
+        "types": ["@types/dom-view-transitions"]
 	}
 	// Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias and https://kit.svelte.dev/docs/configuration#files
 	//
