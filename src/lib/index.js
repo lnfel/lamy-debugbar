@@ -12,9 +12,11 @@
  * 5. Do the thing, import out component and reexport the thing
  */
 import LamyDebugbar from "./components/LamyDebugbar.svelte"
-import Shiki, { defaultHighlighterOptions } from "./shiki"
+// Deprecated
+// import Shiki, { defaultHighlighterOptions } from "./shiki"
 
-export { defaultHighlighterOptions, Shiki }
+// Deprecated
+// export { defaultHighlighterOptions, Shiki }
 export default LamyDebugbar
 
 // This one also works
