@@ -1,6 +1,8 @@
 // import adapter from '@sveltejs/adapter-auto'
 import { vitePreprocess } from '@sveltejs/kit/vite'
 import adapter from '@sveltejs/adapter-static'
+import { preprocessMeltUI } from '@melt-ui/pp'
+import sequence from 'svelte-sequential-preprocessor'
 
 const dev = process.argv.includes('dev')
 
@@ -15,7 +17,10 @@ const config = {
             base: dev ? '' : '/lamy-debugbar',
         },
 	},
-    preprocess: vitePreprocess()
+    preprocess: sequence([
+        vitePreprocess(),
+        preprocessMeltUI()
+    ])
 };
 
 export default config
