@@ -12,3 +12,4 @@ vite.config.ts.timestamp-*
 notes.md
 *.bak
 main.css
+/experiment
