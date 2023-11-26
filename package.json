@@ -1,7 +1,7 @@
 {
 	"name": "lamy-debugbar",
 	"description": "The missing Svelte debugbar, inspired by Laravel Debugbar.",
-	"version": "0.2.1",
+	"version": "0.3.0",
 	"author": "Dale Ryan Aldover",
 	"license": "MIT",
 	"homepage": "https://lnfel.github.io/lamy-debugbar/",
