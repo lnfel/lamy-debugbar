@@ -1,6 +1,10 @@
 <script>
-    import { onMount, afterUpdate, tick } from "svelte"
-    import Shiki, { defaultHighlighterOptions } from "$lib/shiki.js"
+    import { onMount } from "svelte"
+    import { writable } from "svelte/store"
+    import { crossfade } from 'svelte/transition'
+    import { cubicInOut } from 'svelte/easing'
+    import { createCollapsible, createTabs, melt } from '@melt-ui/svelte'
+    import { getHighlighter, addClassToHast } from 'shikiji'
     /**
      * Using Twind in library mode
      *
@@ -11,225 +15,218 @@
     import LamyIcon from "$lib/assets/lamy-logo-192x192.png"
     import Pulse from "$lib/components/Pulse.svelte"
 
+    const defaultHighlighterOptions = {
+        themes: ['material-theme-palenight'],
+        langs: ['javascript']
+    }
+
+    /**
+     * @description The object that will be displayed by Lamy Debugbar.
+     * @default {} - Empty object
+     */
     export let data = {}
-    /** @type {import('shiki-es').HighlighterOptions} */
+    /**
+     * @description Shiki 式辞's BundledHighlighterOptions
+     * @type {import('shikiji').BundledHighlighterOptions<import('shikiji').BuiltinLanguage, import('shikiji').BuiltinTheme>}
+     * @default { themes: ['material-theme-palenight'], langs: ['javascript'] }
+     */
     export let highlighter = defaultHighlighterOptions
+    /**
+     * @description Toggles debugbar between expanded and collapsed state
+     * @type {Boolean}
+     * @default false
+     */
     export let open = false
+    /**
+     * @description Whether to display debugbar icon.
+     * @type {Boolean}
+     * @default false
+     */
     export let noIcon = false
-    /** @type {any} */
-    export let customTheme = undefined
-    /** @type {Boolean} */
+    /**
+     * @description Load a custom theme that is not shipped with shiki by default. Examples are [Tokyo Night](https://github.com/enkia/tokyo-night-vscode-theme/tree/master/themes) and [SynthWave 84](https://github.com/robb0wen/synthwave-vscode/blob/master/themes/synthwave-color-theme.json). Note that shiki only accepts valid JSON syntax and will reject malformed JSON, if you have trouble loading a custom theme, check first to see if the json data is strictly valid. Trailing commas and comments are usually the issue.
+     * @type {any}
+     * @default null
+     */
+    export let customTheme = null
+    /**
+     * @deprecated
+     * @descriptionFor convenience, an offline prop is exposed to allow component to function as expected while working locally without internet. This requires the project you are working on to host the shiki themes and language you are expected to be using as well as the oniguruma wasm file.
+     * @type {Boolean}
+     * @default false
+     */
+    // svelte-ignore unused-export-let
     export let offline = false
 
-    let shiki = Shiki
-    /** @type {import('shiki-es').IShikiTheme | undefined} */
-    let currentTheme
-    /** @type {String[]} */
-    let shikiHTML = []
-    let ready = false
+    /**
+     * @type {import('svelte/store').Writable<import('shikiji').Highlighter | null>}
+     */
+    const shiki = writable(null)
+    /**
+     * @description Current theme applied
+     * @type {import('svelte/store').Writable<import('shikiji').ThemeRegistration>}
+     */
+    const currentTheme = writable()
+    /**
+     * @description Debugbar ready state
+     */
+    const ready = writable(false)
+
+    const {
+        elements: { root: collapsibleRoot, content: collapsibleContent, trigger: collapsibleTrigger },
+        states: { open: collapsibleOpen }
+    } = createCollapsible({
+        defaultOpen: open,
+    })
+
+    const {
+        elements: { root: tabsRoot, list: tabsList, content: tabsContent, trigger: tabsTrigger },
+        states: { value: currentTab }
+    } = createTabs({
+        defaultValue: 'route',
+    })
+
+    const [send, receive] = crossfade({
+        duration: 250,
+        easing: cubicInOut
+    })
 
     /**
-     * @param {import('shiki-es').IThemeRegistration} theme
+     * @description Load bundled theme
+     * @param {import('shikiji').ThemeRegistration | import('shikiji').ThemeRegistrationRaw} theme
      */
     async function loadTheme(theme) {
-        if (shiki.highlighter) {
-            await shiki.highlighter?.loadTheme(theme)
-            if ((shiki.highlighter?.getLoadedThemes()).includes(/** @type {import('shiki-es').Theme} */ (highlighter.theme))) {
-                currentTheme = shiki.highlighter?.getTheme(highlighter?.theme)
-            }
-            renderShiki(data)
+        if ($shiki) {
+            await $shiki.loadTheme(theme)
+            $currentTheme = $shiki.getTheme(/** @type {String | import('shikiji').ThemeRegistration | import('shikiji').ThemeRegistrationRaw} */ (highlighter.themes?.at(0)))
         }
     }
 
     /**
-     * 
-     * @param {any} theme
+     * @description Load custom theme
+     * @see {@link https://github.com/antfu/shikiji/blob/main/docs/themes.md | Load Custom Themes}
+     * @param {import('shikiji').ThemeRegistrationRaw} theme
      */
     async function loadCustomTheme(theme) {
-        if (theme) {
-            const iShikiTheme = shiki.toShikiTheme(theme)
-            await shiki.highlighter?.loadTheme(iShikiTheme)
-            currentTheme = shiki.highlighter?.getTheme(iShikiTheme.name)
-            renderShiki(data)
+        console.log('[loadCustomTheme] theme: ', theme)
+        if (theme && $shiki) {
+            await $shiki.loadTheme(theme)
+            $currentTheme = $shiki.getTheme(/** @type {String | import('shikiji').ThemeRegistration | import('shikiji').ThemeRegistrationRaw} */ (theme.name))
         }
-    }
-
-    /**
-     * @param {Object} data
-     * @returns {String[]} Array of HTMLElement strings
-     */
-    function renderShiki(data) {
-        const html = []
-        for (const [key, code] of Object.entries(data)) {
-            if (shiki.highlighter) {
-                const tokens = shiki.highlighter.codeToThemedTokens(JSON.stringify(code, null, 2), 'js', currentTheme?.name, { includeExplanation: false })
-                /** @type {import('shiki-es').HtmlRendererOptions} */
-                const options = {
-                    bg: currentTheme?.bg,
-                    elements: {
-                        pre({ className, style, children }) {
-                            return `<pre class="${className} ${tw('overflow-x-auto px-4 py-4')}" style="${style}" tabindex="0">${children}</pre>`
-                        }
-                    }
-                }
-                html.push(shiki.renderToHtml(tokens, options))
-            }
-        }
-        shikiHTML = html
-
-        return shikiHTML
-    }
-
-    /**
-     * @param {Event|null & { target: HTMLButtonElement }} event
-     */
-    function switchTab(event) {
-        if (shiki.highlighter && currentTheme) {
-            /**
-             * @type {NodeListOf<HTMLButtonElement>|null}
-             */
-            const tabButtons = document.querySelectorAll('.lamy-tab')
-            tabButtons?.forEach((button) => {
-                button.style.background = 'transparent'
-                button.classList.remove(`!bg-[${currentTheme?.colors?.['titleBar.inactiveForeground'] ?? currentTheme?.colors?.['titleBar.activeBackground'] ?? currentTheme?.colors?.['menu.background']}]`)
-                button.classList.remove(`!text-[${currentTheme?.colors?.['tab.activeForeground'] ?? currentTheme?.colors?.['menu.foreground']}]`)
-            })
-
-            const tabContents = document.querySelectorAll('.lamy-tab-content')
-            tabContents?.forEach((content) => {
-                content.classList.add(tw('hidden'))
-            })
-
-            if (event?.target instanceof HTMLButtonElement && currentTheme.colors) {
-                event.target.classList.add(`!bg-[${currentTheme?.colors?.['titleBar.inactiveForeground'] ?? currentTheme?.colors?.['titleBar.activeBackground'] ?? currentTheme?.colors?.['menu.background']}]`)
-                event.target.classList.add(`!text-[${currentTheme?.colors?.['tab.activeForeground'] ?? currentTheme?.colors?.['menu.foreground']}]`)
-                document.querySelector(`.lamy-tab-content.${event.target.id}`)?.classList.remove(tw('hidden'))
-
-                /** @type {HTMLElement|null} */
-                const detailsElement = document.querySelector('.lamy-details')
-                if (detailsElement) {
-                    detailsElement.dataset.current = event.target.dataset.index
-                }
-            }
-        }
-    }
-
-    $: {
-        if (shiki.highlighter && !customTheme && highlighter) {
-            loadTheme(/** @type {import('shiki-es').IThemeRegistration} */ (highlighter.theme))
-        } else if (shiki.highlighter && customTheme) {
-            loadCustomTheme(customTheme)
-        }
-        renderShiki(data)
     }
 
     onMount(async () => {
-        // wait for offline prop to populate from localStorage
-        // in most cases we don't need doing this as users would
-        // only need to set offline prop either true or false
-        await tick()
-        if (offline) {
-            const wasm = await fetch('shiki/onig.wasm')
-            if (wasm.status === 200) {
-                shiki.setWasm(wasm)
-                shiki.setCDN('shiki/')
+        shiki.set(await getHighlighter(Object.assign(defaultHighlighterOptions, highlighter)))
+        if ($shiki) {
+            if (customTheme) {
+                await loadCustomTheme(customTheme)
+                $currentTheme = $shiki.getTheme(/** @type {String | import('shikiji').ThemeRegistration | import('shikiji').ThemeRegistrationRaw} */ (customTheme.name))
             } else {
-                console.warn('[lamy-debugbar:error]: ', 'Could not fetch shiki assets offline. Have you placed the assets needed in static/shiki folder? https://github.com/lnfel/lamy-debugbar#using-debugbar-offline')
+                await loadTheme(/** @type {import('shikiji').ThemeRegistration | import('shikiji').ThemeRegistrationRaw} */ (highlighter.themes?.at(0)))
+                $currentTheme = $shiki.getTheme(/** @type {String | import('shikiji').ThemeRegistration | import('shikiji').ThemeRegistrationRaw} */ (highlighter.themes?.at(0)))
             }
         }
-        await shiki.getHighlighter(highlighter)
-        if (customTheme) {
-            await loadCustomTheme(customTheme)
-        } else {
-            await loadTheme(/** @type {import('shiki-es').IThemeRegistration} */ (highlighter.theme))
-        }
-        currentTheme = shiki.highlighter?.getTheme(customTheme?.name ?? highlighter?.theme)
-        
-        shikiHTML = renderShiki(data)
-        ready = true
-    })
-
-    afterUpdate(() => {
-        /** @type {NodeListOf<HTMLElement>} */
-        const lamyTabContents = document.querySelectorAll('.lamy-tab-content')
-        lamyTabContents.forEach((element, key) => {
-            element.dataset.index = `${key}`
-        })
-
-        /** @type {NodeListOf<HTMLButtonElement>} */
-        const lamyTabs = document.querySelectorAll('.lamy-tab')
-        for (const element of lamyTabs) {
-            element.style.background = 'transparent'
-            element.style.color = currentTheme?.fg ?? ''
-        }
-
-        /** @type {HTMLElement|null} */
-        const detailsElement = document.querySelector('.lamy-details')
-        if (detailsElement) {
-            lamyTabs[Number(detailsElement.dataset.current)].click()
-        }
+        $ready = true
     })
 
     /**
-     * Toggle details element
+     * @type String
      */
-    function toggleDetails() {
-        /** @type {HTMLDetailsElement|null} */
-        const detailsElement = document.querySelector('.lamy-details')
-        if (detailsElement) {
-            detailsElement.open = !detailsElement.open
+    let resolvedCurrentTabValue
+
+    /**
+     * @param {Promise<String> | String} currentTabValue
+     */
+    async function resolveCurrentTabValue(currentTabValue) {
+        resolvedCurrentTabValue = await Promise.resolve(currentTabValue)
+    }
+
+    $: {
+        if ($shiki && !customTheme && highlighter) {
+            loadTheme(/** @type{import('shikiji').ThemeRegistration | import('shikiji').ThemeRegistrationRaw} */ (highlighter.themes?.at(0)))
+        } else if ($shiki && customTheme) {
+            loadCustomTheme(customTheme)
         }
     }
+    $: $collapsibleOpen = open
+    $: resolveCurrentTabValue($currentTab)
 </script>
 
-{#if ready}
-    <div class={`lamy-debugbar ${tw('fixed bottom-0 inset-x-0')}`}>
-        <details class={`lamy-details ${tw('relative overflow-hidden')}`} bind:open data-current="0">
-            <div class={`${tw('max-h-96 border-t border-gray-700 overflow-x-hidden overflow-y-auto')}`}>
-                <!-- Render shiki html here -->
-                {#each shikiHTML as element, i}
-                    <div class="lamy-tab-content {Object.keys(data)[i]} {i === 0 ? '' : tw('hidden')}">{@html element}</div>
-                {/each}
-            </div>
-
-            <summary class={`lamy-toggle ${tw('flex items-center justify-between list-none outline-none')} ${tw(`bg-[${currentTheme?.colors?.['titleBar.inactiveBackground'] ?? currentTheme?.bg}]`)} ${tw(`text-[${currentTheme?.fg}]`)}`}>
+{#if $ready}
+    <div use:melt={$collapsibleRoot} class="lamy-debugbar {tw('fixed bottom-0 inset-x-0')}">
+        <div use:melt={$tabsRoot} class="lamy-main {tw('relative overflow-hidden')}">
+            <div class="lamy-header {tw('flex items-center justify-between list-none outline-none')} {tw(`bg-[${$currentTheme?.colors?.['titleBar.activeBackground'] ?? $currentTheme?.bg}]`)} {tw(`text-[${$currentTheme?.colors?.['titleBar.activeForeground'] ?? $currentTheme?.fg}]`)}">
                 <!--
                     Flexbox apparently has min-width: auto; and
                     would not shrink further on small screens, setting min-width: 0; allows flexbox to shrink even further
                     https://stackoverflow.com/questions/36230944/prevent-flex-items-from-overflowing-a-container
                 -->
-                <div class={`${tw('flex items-center min-w-0')}`}>
+                <div class="{tw('flex items-center min-w-0')}">
                     {#if !noIcon}
                         {#if $$slots.icon}
                             <slot name="icon" />
                         {:else}
                             <div>
-                                <img src={LamyIcon} alt="Lamy Debugbar icon" width="40" height="40" class={`${tw('max-h-10 object-contain py-2')}`}>
-                                <span class={`lamy-summary-text ${tw('sr-only')}`}>Lamy Debugbar</span>
+                                <img src={LamyIcon} alt="Lamy Debugbar icon" width="40" height="40" class="{tw('max-h-10 object-contain py-2')}">
+                                <span class="lamy-summary-text {tw('sr-only')}">Lamy Debugbar</span>
                             </div>
                         {/if}
                     {/if}
 
-                    <div class={`lamy-tablist ${tw('flex overflow-x-auto')}`}>
+                    <div use:melt={$tabsList} class="lamy-tabslist {tw('flex overflow-x-auto')}">
                         {#each Object.keys(data) as key, i}
-                            <button on:click={switchTab} id={key} data-index="{i}" type="button"
-                                class={`lamy-tab ${tw('whitespace-nowrap px-2 py-2 outline-none')} ${i === 0 ? tw(`!text-[${currentTheme?.colors?.['tab.activeForeground'] ?? currentTheme?.colors?.['menu.foreground']}] !bg-[${currentTheme?.colors?.['titleBar.inactiveForeground'] ?? currentTheme?.colors?.['titleBar.activeBackground'] ?? currentTheme?.colors?.['menu.background']}]`) : tw(`bg-[${currentTheme?.colors?.['titleBar.inactiveBackground'] ?? currentTheme?.bg}] !hover:text-[${currentTheme?.colors?.['tab.activeForeground'] ?? currentTheme?.colors?.['menu.foreground']}]`)} `}>
-                                { key }
+                            <button use:melt={$tabsTrigger(key)} class="lamy-tab relative {tw(`whitespace-nowrap px-2 py-2 outline-none ${$currentTab === key ? 'opacity-100' : 'opacity-75'}`)} hover:opacity-100 focus:opacity-100">
+                                <span>{key}</span>
+                                {#if resolvedCurrentTabValue === key}
+                                    <div in:send={{ key: 'trigger' }} out:receive={{ key: 'trigger' }} class="{tw('absolute bottom-1 left-1/2 h-0.5 w-full -translate-x-1/2')} {tw(`bg-[${$currentTheme?.colors?.['titleBar.activeForeground'] ?? $currentTheme?.fg}]`)}"></div>
+                                {/if}
                             </button>
                         {/each}
                     </div>
                 </div>
 
-                <button on:click={toggleDetails} class={`lamy-toggle-arrow ${tw(`px-2 py-2 outline-none hover:text-[${currentTheme?.colors?.['tab.activeForeground']}] hover:bg-[${currentTheme?.colors?.['titleBar.inactiveForeground'] ?? currentTheme?.colors?.['titleBar.activeBackground'] ?? currentTheme?.colors?.['menu.background']}]`)}`} type="button">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class={`${tw('w-6 h-6')}`}>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                    </svg>
+                <button use:melt={$collapsibleTrigger} tabindex="-1" class="lamy-filler-button flex-1 self-stretch outline-none"></button>
+
+                <button use:melt={$collapsibleTrigger} class="lamy-toggle-arrow {tw(`px-2 py-2 outline-none`)} {tw(`hover:bg-[${$currentTheme?.colors?.['titleBar.activeForeground'] ?? $currentTheme?.fg ?? $currentTheme?.colors?.['titleBar.activeForeground']}] focus:bg-[${$currentTheme?.colors?.['titleBar.activeForeground']}] hover:text-[${$currentTheme?.colors?.['titleBar.activeBackground']}] focus:text-[${$currentTheme?.colors?.['titleBar.activeBackground']}]`)}" type="button" aria-label="Toggle lamy debugbar">
+                    {#if $collapsibleOpen}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x {tw('w-6 h-6')}">
+                            <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                        </svg>
+                    {:else}
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="lucide lucide-chevrons-up-down {tw('w-6 h-6')}">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                        </svg>
+                    {/if}
                 </button>
-            </summary>
-        </details>
+            </div>
+
+            <div use:melt={$collapsibleContent} class="lamy-tabscontent-container {tw('max-h-96 border-t border-gray-700 overflow-x-hidden overflow-y-hidden')} {tw('grid')} {tw(`${$collapsibleOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`)}">
+                {#key highlighter.themes?.at(0)}
+                    {#each Object.entries(data) as [key, value] (key)}
+                        <div use:melt={$tabsContent(key)} style:--tab="tab-{key}" class="lamy-tabscontent-item {tw('min-h-0 grid overflow-y-auto')} {tw(`${$currentTab === key && $collapsibleOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`)}">
+                            <div class="{tw('min-h-0')}">
+                                {@html $shiki?.codeToHtml(JSON.stringify(value, null, 2),
+                                /** @type {import('shikiji').CodeToHastOptions<import('shikiji').BuiltinLanguage, import('shikiji').BuiltinTheme>} */
+                                ({
+                                    lang: 'javascript',
+                                    theme: $currentTheme?.name,
+                                    transformers: [
+                                        {
+                                            pre(node) {
+                                                addClassToHast(node, tw('overflow-x-auto px-4 py-4'))
+                                            }
+                                        }
+                                    ]
+                                }) )}
+                            </div>
+                        </div>
+                    {/each}
+                {/key}
+            </div>
+        </div>
     </div>
 {:else}
-    <div class={`${tw('fixed bottom-0 inset-x-0')}`}>
+    <div class="{tw('fixed bottom-0 inset-x-0')}">
         <Pulse />
     </div>
 {/if}
