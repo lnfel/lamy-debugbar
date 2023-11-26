@@ -3,6 +3,8 @@
     import { base } from '$app/paths'
     import { writable } from 'svelte/store'
     import { onMount } from 'svelte'
+    import { bundledThemes } from 'shikiji/index.mjs'
+
     // import LamyDebugbar from 'lamy-debugbar'
     // import LamyDebugbar from "lamy-debugbar/dist/components/LamyDebugbar.svelte"
     // import LamyDebugbar from "$lib/components/LamyDebugbar.svelte"
@@ -11,9 +13,25 @@
     import Link from "$lib/components/Link.svelte"
     import SSRB from "$lib/components/SSRB.svelte"
     import Flower from "$lib/components/Flower.svelte"
-    // import Pulse from "$lib/components/Pulse.svelte"
+    import Select from '$lib/components/Select.svelte'
 
-    const themes = ['css-variables', 'dark-plus', 'dracula-soft', 'dracula', 'github-dark-dimmed', 'github-dark', 'github-light', 'hc_light', 'light-plus', 'material-theme-darker', 'material-theme-lighter', 'material-theme-ocean', 'material-theme-palenight', 'material-theme', 'min-dark', 'min-light', 'monokai', 'nord', 'one-dark-pro', 'poimandres', 'rose-pine-dawn', 'rose-pine-moon', 'rose-pine', 'slack-dark', 'slack-ochin', 'solarized-dark', 'solarized-light', 'vitesse-dark', 'vitesse-light']
+    const themes = Object.keys(bundledThemes)
+    const reducedMotionOptions = {
+        'transition': [
+            {
+                label: 'Enabled',
+                value: 'true'
+            },
+            {
+                label: 'Disabled',
+                value: 'false'
+            },
+            {
+                label: 'Auto',
+                value: 'auto'
+            }
+        ]
+    }
     /**
      * @type {String}
      */
@@ -28,6 +46,19 @@
     let offlineToggler = writable()
     /** @type {Boolean} */
     let offline = false
+    /** @type {'true' | 'false' | 'auto'} */
+    let prefersReducedMotion = 'auto'
+
+    /**
+     * @param {'true' | 'false' | 'auto'} value
+     */
+    function resolvePrefersReducedMotionValue(value) {
+        if (value === 'auto') {
+            return value
+        } else {
+            return value === 'true' ? true : false
+        }
+    }
 
     onMount(() => {
         offlineToggler.set(stringToBoolean(localStorage.getItem('lamy-debugbar:offline') ?? 'false'))
@@ -98,6 +129,8 @@
         }
         throw Error('stringToBoolean string parameter only accepts true and false as literal string.')
     }
+    /** @type {Boolean | 'auto'} */
+    $: resolvedPrefersReducedMotionValue = resolvePrefersReducedMotionValue(prefersReducedMotion)
 </script>
 
 <header class="container mx-auto px-4 lg:px-24 py-8 transition-all space-y-4">
@@ -108,14 +141,10 @@
 <main class="container mx-auto px-4 lg:px-24 space-y-6 transition-all">
     <section class="py-24">
         <div class="space-y-4">
-            <label for="theme" class="block w-full max-w-sm md:max-w-lg mx-auto font-medium text-gray-700 dark:text-white">
+            <div class="block w-full max-w-sm md:max-w-lg mx-auto font-medium text-gray-700 dark:text-white">
                 Powered by <a href="https://shiki.matsu.io/" class="text-[#6f92ba] outline-none shiki-link">Shiki</a> we can choose from {themes.length} awesome themes!
-            </label>
-            <select id="theme" on:change={reloadDebugbar} bind:value={selectedTheme} class="block w-full max-w-sm md:max-w-lg mx-auto bg-sky-100 text-sky-900 text-sm rounded-md shadow-sm outline-none ring-2 ring-sky-300 dark:ring-sky-100 focus:ring-sky-500 focus:dark:ring-sky-100 border-2 border-transparent focus:dark:border-sky-500 px-4 py-[.423rem]">
-                {#each themes as theme}
-                    <option value={theme}>{theme}</option>
-                {/each}
-            </select>
+            </div>
+            <Select inputLabel="Shiki themes" bind:value={selectedTheme} options={themes} defaultSelected={{ label: 'material-theme-palenight', value: 'material-theme-palenight' }} noLabel classWidth="w-full max-w-sm md:max-w-lg mx-auto" />
         </div>
     </section>
 
@@ -165,13 +194,6 @@
                 </button>
             </div>
 
-            <!-- <div class="flex items-center gap-2">
-                <button on:click={() => customIcon = !customIcon} type="button" class="flex items-center gap-2 whitespace-nowrap text-base font-medium rounded-md shadow-sm text-white dark:text-sky-900 dark:focus:text-white bg-sky-500 dark:bg-sky-300 dark:focus:bg-sky-700 hover:bg-sky-700 dark:hover:bg-sky-200 focus:outline-none focus:ring-2 dark:focus:ring-0 focus:ring-offset-2 dark:focus:ring-offset-0 focus:ring-sky-500 border-2 border-transparent dark:focus:border-sky-100 px-2 py-1">
-                    <img src="images/ssrb-192x192.webp" alt="SSRB" class="w-6 h-6" />
-                    <span>Toggle Custom Icon</span>
-                </button>
-            </div> -->
-
             <div class="flex items-center gap-2 pl-1">
                 <input type="checkbox" id="customIcon" bind:checked={customIcon} class="appearance-none outline-none w-4 h-4 rounded bg-sky-100 border border-sky-500 ring-2 ring-transparent ring-offset-2 dark:ring-offset-sky-dark focus:ring-sky-500 dark:focus:ring-sky-500">
                 <label for="customIcon" class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-white">
@@ -181,15 +203,13 @@
             </div>
 
             <div class="flex items-center gap-2 pl-1">
-                <input type="checkbox" id="offline" bind:checked={$offlineToggler} class="appearance-none outline-none w-4 h-4 rounded bg-sky-100 border border-sky-500 ring-2 ring-transparent ring-offset-2 dark:ring-offset-sky-dark focus:ring-sky-500 dark:focus:ring-sky-500">
-                <label for="offline" class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-white">
-                    <span>Offline</span>
+                <input disabled type="checkbox" id="offline" bind:checked={$offlineToggler} class="peer appearance-none outline-none w-4 h-4 rounded bg-sky-100 disabled:bg-slate-300 border border-sky-500 disabled:border-white ring-2 ring-transparent ring-offset-2 dark:ring-offset-sky-dark disabled:dark:ring-offset-slate-300 focus:ring-sky-500 dark:focus:ring-sky-500">
+                <label for="offline" class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-white peer-disabled:dark:text-slate-300">
+                    <span class="line-through">Offline</span> <span>(Deprecated, themes are now included as modules. See <Link href="https://github.com/antfu/shikiji#changes">Shikiji 式辞</Link>)</span>
                 </label>
             </div>
 
-            <!-- <div>
-                <a href="/about">About</a>
-            </div> -->
+            <!-- <Select bind:value={prefersReducedMotion} options={reducedMotionOptions} defaultSelected={reducedMotionOptions['transition'][2]} noLabel classWidth="min-w-[10rem]" /> -->
         </div>
     </section>
 
@@ -204,26 +224,14 @@
     <span>This project is a tribute to <Link href="https://www.youtube.com/@YukihanaLamy">Yukihana Lamy</Link></span>
 </footer>
 
-<!-- {#if selectedTheme} -->
-    <!-- {#await promise}
-        <div class="fixed bottom-0 inset-x-0">
-            <Pulse />
-        </div>
-    {:then result}
-        <LamyDebugbar bind:open highlighter={{
-            theme: `${selectedTheme}`
-        }} bind:data={sampleData}/>
-    {/await} -->
-<!-- {/if} -->
-
-
 {#if customTheme}
     <LamyDebugbar bind:open bind:data={sampleData} bind:noIcon bind:customTheme bind:offline>
         <svelte:component slot="icon" this={customIcon ? SSRB : Flower} />
     </LamyDebugbar>
 {:else}
+    <!-- bind:prefersReducedMotion={resolvedPrefersReducedMotionValue} -->
     <LamyDebugbar bind:open bind:data={sampleData} highlighter={{
-        theme: `${selectedTheme}`
+        themes: [selectedTheme ?? 'material-theme-palenight']
     }} bind:noIcon bind:offline>
         <svelte:component slot="icon" this={customIcon ? SSRB : Flower} />
     </LamyDebugbar>
