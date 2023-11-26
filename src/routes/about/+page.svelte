@@ -14,7 +14,7 @@
 <a href="{base}/" class="!text-malibu-500">Home</a>
 
 <LamyDebugbar bind:data={sampleData} highlighter={{
-    theme: `min-dark`
+    themes: ["min-dark"]
 }}>
     <img slot="icon" src="{base}/images/ssrb-192x192.webp" alt="SSRB" width="40" height="40" />
 </LamyDebugbar>
