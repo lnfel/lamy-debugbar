@@ -83,7 +83,7 @@
         elements: { root: tabsRoot, list: tabsList, content: tabsContent, trigger: tabsTrigger },
         states: { value: currentTab }
     } = createTabs({
-        defaultValue: 'route',
+        // defaultValue: 'route',
     })
 
     const [send, receive] = crossfade({
@@ -185,7 +185,7 @@
                     </div>
                 </div>
 
-                <button use:melt={$collapsibleTrigger} tabindex="-1" class="lamy-filler-button flex-1 self-stretch outline-none"></button>
+                <button use:melt={$collapsibleTrigger} tabindex="-1" class="lamy-filler-button {tw('flex-1 self-stretch outline-none')}"></button>
 
                 <button use:melt={$collapsibleTrigger} class="lamy-toggle-arrow {tw(`px-2 py-2 outline-none`)} {tw(`hover:bg-[${$currentTheme?.colors?.['titleBar.activeForeground'] ?? $currentTheme?.fg ?? $currentTheme?.colors?.['titleBar.activeForeground']}] focus:bg-[${$currentTheme?.colors?.['titleBar.activeForeground']}] hover:text-[${$currentTheme?.colors?.['titleBar.activeBackground']}] focus:text-[${$currentTheme?.colors?.['titleBar.activeBackground']}]`)}" type="button" aria-label="Toggle lamy debugbar">
                     {#if $collapsibleOpen}
