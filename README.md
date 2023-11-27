@@ -70,7 +70,7 @@ The debugbar will show tab for `page` and `server`. And since we declared `debug
 
 ## Configuration
 
-There are six properties exposed by Lamy Debugbar, data, open, noIcon, highlighter, customTheme and offline as well as one optional slot named icon.
+There are six properties exposed by Lamy Debugbar, data, open, noIcon, highlighter, customTheme and ~~offline~~ as well as one optional slot named icon.
 
 ```svelte
 <LamyDebugbar 
@@ -81,8 +81,7 @@ There are six properties exposed by Lamy Debugbar, data, open, noIcon, highlight
         theme: 'material-theme-palenight',
         langs: ['javascript']
     }}
-    customTheme?={Object}
-    offline?={false}>
+    customTheme?={Object}>
 
     <slot name="icon" />
 
@@ -97,7 +96,6 @@ There are six properties exposed by Lamy Debugbar, data, open, noIcon, highlight
 | open | Boolean | false | Whether to keep the debugbar expanded. |
 | noIcon | Boolean | false | Whether to display debugbar icon. |
 | highlighter | Object | Material theme palenight and javascript language[^1] | Shiki's [HighlighterOptions](https://github.com/shikijs/shiki#configuration-and-options) |
-| [offline](#using-debugbar-offline) | Boolean | false | For convenience, an offline prop is exposed to allow component to function as expected while working locally without internet. This requires the project you are working on to host the shiki themes and language you are expected to be using as well as the oniguruma wasm file. |
 | [customTheme](#loading-up-a-custom-theme) | Object | undefined | Load a custom theme that is not shipped with shiki by default. Examples are [Tokyo Night](https://github.com/enkia/tokyo-night-vscode-theme/tree/master/themes) and [SynthWave 84](https://github.com/robb0wen/synthwave-vscode/blob/master/themes/synthwave-color-theme.json). Note that shiki only accepts valid JSON syntax and will reject malformed JSON, if you have trouble loading a custom theme, check first to see if the json data is strictly valid. Trailing commas and comments are usually the issue. |
 
 For a list of available themes head to [Shiki's doc about themes](https://github.com/shikijs/shiki/blob/main/docs/themes.md#shiki-themes). And a list of themes not bundled by Shiki can be viewed at [vscodethemes website](https://vscodethemes.com/).
@@ -154,7 +152,8 @@ Not a fan of flowers? Not a problem since you can just either remove displaying 
 </LamyDebugbar>
 ```
 
-### Using debugbar offline
+<details>
+<summary>Using debugbar offline (Deprecated, themes are now included as modules.)</summary>
 
 By default, shiki themes, language and oniguruma wasm engine is fetched from a [CDN](https://cdn.jsdelivr.net/npm/shiki-es@latest/dist/assets/). This is good as we don't need to manage the themes and language ourselves. As part of progressive enhancement the `offline` prop allows users to use Lamy Debugbar even in dire circumstances, such as when coding without internet.
 
@@ -183,12 +182,15 @@ awesome-project/
 ```
 
 The themes, languages and onig.wasm files can be downloaded from [shiki-es CDN](https://cdn.jsdelivr.net/npm/shiki-es@latest/dist/assets/).
+</details>
 
 ## Roadmap
 
+Roadmap has been moved to [project board](https://github.com/users/lnfel/projects/1).
+
 Due to how themes work, there is no unified way of getting the right color combination for lamy debugbar at the moment, some themes will not be as good when used due to certain theming tokens not present. Old themes usually have this issue. Newer themes are much more compliant with new vscode theming.
 
-- [ ] Find a way for users to set color scheme based on current theme pallete chosen. Shiki has this css-variables feature which might be the one we are looking to consider using.
+- [ ] ~~Find a way for users to set color scheme based on current theme pallete chosen. Shiki has this css-variables feature which might be the one we are looking to consider using.~~ [Shikiji 式辞 drops support for css-variables](https://github.com/antfu/shikiji#hard-breaking-changes).
 
 [^1]: Default highlighter options
     ```js
