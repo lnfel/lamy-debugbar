@@ -79,7 +79,8 @@
 		"svelte",
 		"debugbar",
 		"development",
-		"debugging"
+		"debugging",
+        "shiki"
 	],
 	"pnpm": {
 		"peerDependencyRules": {
