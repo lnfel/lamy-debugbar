@@ -3,7 +3,7 @@
     import { base } from '$app/paths'
     import { writable } from 'svelte/store'
     import { onMount } from 'svelte'
-    import { bundledThemes } from 'shikiji/index.mjs'
+    import { bundledThemes } from 'shiki'
 
     // import LamyDebugbar from 'lamy-debugbar'
     // import LamyDebugbar from "lamy-debugbar/dist/components/LamyDebugbar.svelte"

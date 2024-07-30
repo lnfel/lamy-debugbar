@@ -4,7 +4,7 @@
     import { crossfade } from 'svelte/transition'
     import { cubicInOut } from 'svelte/easing'
     import { createCollapsible, createTabs, melt } from '@melt-ui/svelte'
-    import { getHighlighter, addClassToHast } from 'shikiji'
+    import { createHighlighter, addClassToHast } from 'shiki'
     /**
      * Using Twind in library mode
      *
@@ -15,6 +15,9 @@
     import LamyIcon from "$lib/assets/lamy-logo-192x192.png"
     import Pulse from "$lib/components/Pulse.svelte"
 
+    /**
+     * @type {import('shiki').BundledHighlighterOptions<import('shiki').BundledLanguage, import('shiki').BundledTheme>}
+     */
     const defaultHighlighterOptions = {
         themes: ['material-theme-palenight'],
         langs: ['javascript']
@@ -27,7 +30,7 @@
     export let data = {}
     /**
      * @description Shiki 式辞's BundledHighlighterOptions
-     * @type {import('shikiji').BundledHighlighterOptions<import('shikiji').BuiltinLanguage, import('shikiji').BuiltinTheme>}
+     * @type {Partial<import('shiki').BundledHighlighterOptions<import('shiki').BundledLanguage, import('shiki').BundledTheme>>}
      * @default { themes: ['material-theme-palenight'], langs: ['javascript'] }
      */
     export let highlighter = defaultHighlighterOptions
@@ -59,12 +62,12 @@
     export let offline = false
 
     /**
-     * @type {import('svelte/store').Writable<import('shikiji').Highlighter | null>}
+     * @type {import('svelte/store').Writable<import('shiki').Highlighter | null>}
      */
     const shiki = writable(null)
     /**
      * @description Current theme applied
-     * @type {import('svelte/store').Writable<import('shikiji').ThemeRegistration>}
+     * @type {import('svelte/store').Writable<import('shiki').ThemeRegistration>}
      */
     const currentTheme = writable()
     /**
@@ -93,37 +96,36 @@
 
     /**
      * @description Load bundled theme
-     * @param {import('shikiji').ThemeRegistration | import('shikiji').ThemeRegistrationRaw} theme
+     * @param {import('shiki').ThemeRegistration | import('shiki').ThemeRegistrationRaw} theme
      */
     async function loadTheme(theme) {
         if ($shiki) {
             await $shiki.loadTheme(theme)
-            $currentTheme = $shiki.getTheme(/** @type {String | import('shikiji').ThemeRegistration | import('shikiji').ThemeRegistrationRaw} */ (highlighter.themes?.at(0)))
+            $currentTheme = $shiki.getTheme(/** @type {String | import('shiki').ThemeRegistration | import('shiki').ThemeRegistrationRaw} */ (highlighter.themes?.at(0)))
         }
     }
 
     /**
      * @description Load custom theme
      * @see {@link https://github.com/antfu/shikiji/blob/main/docs/themes.md | Load Custom Themes}
-     * @param {import('shikiji').ThemeRegistrationRaw} theme
+     * @param {import('shiki').ThemeRegistrationRaw} theme
      */
     async function loadCustomTheme(theme) {
-        console.log('[loadCustomTheme] theme: ', theme)
         if (theme && $shiki) {
             await $shiki.loadTheme(theme)
-            $currentTheme = $shiki.getTheme(/** @type {String | import('shikiji').ThemeRegistration | import('shikiji').ThemeRegistrationRaw} */ (theme.name))
+            $currentTheme = $shiki.getTheme(/** @type {String | import('shiki').ThemeRegistration | import('shiki').ThemeRegistrationRaw} */ (theme.name))
         }
     }
 
     onMount(async () => {
-        shiki.set(await getHighlighter(Object.assign(defaultHighlighterOptions, highlighter)))
+        shiki.set(await createHighlighter(Object.assign(defaultHighlighterOptions, highlighter)))
         if ($shiki) {
             if (customTheme) {
                 await loadCustomTheme(customTheme)
-                $currentTheme = $shiki.getTheme(/** @type {String | import('shikiji').ThemeRegistration | import('shikiji').ThemeRegistrationRaw} */ (customTheme.name))
+                $currentTheme = $shiki.getTheme(/** @type {String | import('shiki').ThemeRegistration | import('shiki').ThemeRegistrationRaw} */ (customTheme.name))
             } else {
-                await loadTheme(/** @type {import('shikiji').ThemeRegistration | import('shikiji').ThemeRegistrationRaw} */ (highlighter.themes?.at(0)))
-                $currentTheme = $shiki.getTheme(/** @type {String | import('shikiji').ThemeRegistration | import('shikiji').ThemeRegistrationRaw} */ (highlighter.themes?.at(0)))
+                await loadTheme(/** @type {import('shiki').ThemeRegistration | import('shiki').ThemeRegistrationRaw} */ (highlighter.themes?.at(0)))
+                $currentTheme = $shiki.getTheme(/** @type {String | import('shiki').ThemeRegistration | import('shiki').ThemeRegistrationRaw} */ (highlighter.themes?.at(0)))
             }
         }
         $ready = true
@@ -143,7 +145,7 @@
 
     $: {
         if ($shiki && !customTheme && highlighter) {
-            loadTheme(/** @type{import('shikiji').ThemeRegistration | import('shikiji').ThemeRegistrationRaw} */ (highlighter.themes?.at(0)))
+            loadTheme(/** @type{import('shiki').ThemeRegistration | import('shiki').ThemeRegistrationRaw} */ (highlighter.themes?.at(0)))
         } else if ($shiki && customTheme) {
             loadCustomTheme(customTheme)
         }
@@ -206,7 +208,7 @@
                         <div use:melt={$tabsContent(key)} style:--tab="tab-{key}" class="lamy-tabscontent-item {tw('min-h-0 grid overflow-y-auto')} {tw(`${$currentTab === key && $collapsibleOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`)}">
                             <div class="{tw('min-h-0')}">
                                 {@html $shiki?.codeToHtml(JSON.stringify(value, null, 2),
-                                /** @type {import('shikiji').CodeToHastOptions<import('shikiji').BuiltinLanguage, import('shikiji').BuiltinTheme>} */
+                                /** @type {import('shiki').CodeToHastOptions<import('shiki').BundledLanguage, import('shiki').BundledTheme>} */
                                 ({
                                     lang: 'javascript',
                                     theme: $currentTheme?.name,
